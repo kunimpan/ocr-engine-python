@@ -1,0 +1,26 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore environment files
+.env
+venv/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+
+# Ignore IDE config files
+.vscode/
+.idea/
+
+# Ignore dataset
+dataset/
+dataset_demo/
+dataset_demo2/
+
+# Ignore ipynb_checkpoints
+.ipynb_checkpoints/
