@@ -21,6 +21,7 @@ Thumbs.db
 dataset/
 dataset_demo/
 dataset_demo2/
+dataset2
 
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
