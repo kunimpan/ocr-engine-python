@@ -22,6 +22,7 @@ dataset/
 dataset_demo/
 dataset_demo2/
 dataset2
+font/
 
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
