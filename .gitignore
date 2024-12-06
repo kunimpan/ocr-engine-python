@@ -25,6 +25,7 @@ dataset2
 font/
 data/raw_images/
 data/test_images/
+data/output_images/
 
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
