@@ -30,6 +30,7 @@ data/test_images/transcript
 data/test_images/processed_images
 data/test_images/research
 data/test_images/scan
+data/raw_class_images/
 #data/processed_data
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
