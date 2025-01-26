@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class OcrConfig(AppConfig):
+class OcrTranscriptConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "ocr"
+    name = "ocr_transcript"
