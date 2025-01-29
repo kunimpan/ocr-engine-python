@@ -8,6 +8,8 @@ import cv2
 import matplotlib.pyplot as plt
 import pytesseract
 import numpy as np
+import json
+from django.http import HttpResponse
 
 print(pytesseract.get_tesseract_version())
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -64,10 +66,13 @@ def index(request):
                 cell_images.append(cell_img)
 
         cell_text_group_images = [] #เก็บรูปกลุ่มข้อความในเซลตาราง
-        for idx, cell_img in enumerate(cell_images):
+        for idx_cell, cell_img in enumerate(cell_images):
             kernel = np.ones((5, 15), np.uint8)
             lines_cell = cv2.dilate(cell_img, kernel, iterations=1)
-            text_group_cells = detect_text_group_in_cell(lines_cell, cell_img)
+            if idx_cell == 0 or idx_cell == 5:
+                text_group_cells, calculate_line_stats = detect_text_group_in_cell(lines_cell, cell_img, 1)
+            else:
+                text_group_cells = detect_text_group_in_cell(lines_cell, cell_img, 2, calculate_line_stats)
             cell_text_group_images.append(text_group_cells)
 
         cell_text_group_sub_images = [] #เก็บรูปกลุ่มข้อความย่อยในเซลตาราง
@@ -86,30 +91,55 @@ def index(request):
         cell_credit_2 = cell_text_group_sub_images[7]
         cell_academic_results_2 = cell_text_group_sub_images[8]
 
+        global text_box_subject_code
         text_box_subject_code = predict_text_in_cell(cell_subject_code)
+        global text_box_subject_name 
         text_box_subject_name = predict_text_in_cell(cell_subject_name)
+        global text_box_credit 
         text_box_credit = predict_text_in_cell(cell_credit)
+        global text_box_academic_results 
         text_box_academic_results = predict_text_in_cell(cell_academic_results)
         text_box_subject_code_2 = predict_text_in_cell(cell_subject_code_2)
         text_box_subject_name_2 = predict_text_in_cell(cell_subject_name_2)
         text_box_credit_2 = predict_text_in_cell(cell_credit_2)
         text_box_academic_results_2 = predict_text_in_cell(cell_academic_results_2)
-        
-        
+
+        combined_list = list(zip(text_box_subject_code, text_box_subject_name, text_box_credit, text_box_academic_results))
 
         return render(request, 'index.html', {
             'uploaded_file_url':uploaded_file_url,
-            'studentInfo':studentInfo_text_box,
-            'subject_code':text_box_subject_code,
-            'subject_name':text_box_subject_name,
-            'credit':text_box_credit,
-            'academic_results':text_box_academic_results,
-            'subject_code_2':text_box_subject_code_2,
-            'subject_name_2':text_box_subject_name_2,
-            'credit_2':text_box_credit_2,
-            'academic_results_2':text_box_academic_results_2,
+            'studentInfo':studentInfo_text_box[2:],
+            #'subject_code':text_box_subject_code,
+            #'subject_name':text_box_subject_name,
+            #'credit':text_box_credit,
+            #'academic_results':text_box_academic_results,
+            #'subject_code_2':text_box_subject_code_2,
+            #'subject_name_2':text_box_subject_name_2,
+            #'credit_2':text_box_credit_2,
+            #'academic_results_2':text_box_academic_results_2,
+            'combined_list':combined_list
         })
     
     else:
         return render(request, 'index.html')
+    
+def download_json(request):
+    # ข้อมูล JSON ที่ต้องการให้ดาวน์โหลด
+    data = {
+        "subject_code": text_box_subject_code,
+        "subject_name": text_box_subject_name,
+        "credit": text_box_credit,
+        "academic_results": text_box_academic_results 
+    }
+
+    # แปลงข้อมูลเป็น JSON
+    json_data = json.dumps(data, indent=4, ensure_ascii=False)  # ensure_ascii=False รองรับภาษาไทย
+
+    # สร้าง Response และตั้งค่าให้เป็นไฟล์แนบ (Attachment)
+    response = HttpResponse(json_data, content_type="application/json")
+    response["Content-Disposition"] = 'attachment; filename="data.json"'
+
+    return response
+    
+
 

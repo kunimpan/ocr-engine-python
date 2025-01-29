@@ -18,9 +18,20 @@
 
     {% if uploaded_file_url %}
         <p>อัปโหลดสำเร็จ: <a href="{{ uploaded_file_url }}">ดูภาพที่นี่</a></p>
-        <!-- <img src="{{ uploaded_file_url }}" alt="Uploaded Image"> --> 
+        <!-- <img src="{{ uploaded_file_url }}" alt="Uploaded Image"> -->
+        <a href="{% url 'download_json' %}" download>
+            <button class="btn btn-success mb-3">ดาวน์โหลด JSON</button>
+        </a>
     {% endif %}
 
+
+
+    <h4>ข้อมูลนักศึกษา</h4>
+    {% for student in studentInfo %}
+        <p style="margin-left: 20px;"><li>{{student}}</li></p>
+    {% endfor %}
+
+    <h4>ตารางวิชา</h4>
     <table class="table">
         <thead>
             <tr>
@@ -31,12 +42,12 @@
             </tr>
         </thead>
         <tbody>
-            {% for text in subject_code %}
+            {% for subject_code, subject_name, credit, academic_results in combined_list %}
             <tr>
-                <td>{{text}}</td>
-                <td>แคลคูลัส</td>
-                <td>3</td>
-                <td>4.0</td>
+                <td>{{subject_code}}</td>
+                <td>{{subject_name}}</td>
+                <td>{{credit}}</td>
+                <td>{{academic_results}}</td>
             </tr>
             {% endfor %}
         </tbody>
