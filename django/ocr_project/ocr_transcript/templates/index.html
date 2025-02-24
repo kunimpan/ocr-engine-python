@@ -25,31 +25,41 @@
     {% endif %}
 
 
-
+    {% if student_name %}
     <h4>ข้อมูลนักศึกษา</h4>
-    {% for student in studentInfo %}
-        <p style="margin-left: 20px;"><li>{{student}}</li></p>
-    {% endfor %}
+    <div style="margin-left: 20px;">
+        <p style="margin-left: 20px;"><li><b>ชื่อ - นามสกุล : </b>{{student_name}}</li></p>
+        <p style="margin-left: 20px;"><li><b>สาขาวิชา : </b>{{field_of_study}}</li></p>
+        <p style="margin-left: 20px;"><li><b>สาขางาน : </b>{{field_of_work}}</li></p>
+        <p style="margin-left: 20px;"><li><b>ระดับคะแนนเฉลี่ยสะสม : </b>{{cgpa}}</li></p>
+        <p style="margin-left: 20px;"><li><b>สำเร็จการศึกษาเมื่อ : </b>{{graduation_date}}</li></p>
+    </div>
+    {% endif %}
+    
 
-    <h4>ตารางวิชา</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">รหัสวิชา</th>
-                <th scope="col">ชื่อวิชา</th>
-                <th scope="col">หน่วยกิต</th>
-                <th scope="col">เกรดที่ได้</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for subject_code, subject_name, credit, academic_results in combined_list %}
-            <tr>
-                <td>{{subject_code}}</td>
-                <td>{{subject_name}}</td>
-                <td>{{credit}}</td>
-                <td>{{academic_results}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% if student_name %}
+    <div style=>
+        <h4 style="text-align: center;">ตารางผลการเรียนรายวิชา</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">รหัสวิชา</th>
+                    <th scope="col">ชื่อวิชา</th>
+                    <th scope="col">หน่วยกิต</th>
+                    <th scope="col">เกรดที่ได้</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject_code, subject_name, credit, academic_results in combined_list %}
+                <tr>
+                    <td>{{subject_code}}</td>
+                    <td>{{subject_name}}</td>
+                    <td>{{credit}}</td>
+                    <td>{{academic_results}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 {% endblock content %}

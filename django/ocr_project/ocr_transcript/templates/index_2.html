@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>หน้าแรกของเว็บไซต์</title>
+{% endblock title %}
+
+{% block content %}
+    <h3 class="text-center mt-3">ระบบถอดข้อความจากใบทรานสคริปต์</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="inputGroupFile01">ใบทรานสคลิปต์</label>
+            <input type="file" class="form-control" id="inputGroupFile01" name="image">
+            <button class="btn btn-success" type="submit">อัพโหลดรูปภาพ</button>
+        </div>
+    </form>
+
+    {% if uploaded_file_url %}
+        <p>อัปโหลดสำเร็จ: <a href="{{ uploaded_file_url }}">ดูภาพที่นี่</a></p>
+        <!-- <img src="{{ uploaded_file_url }}" alt="Uploaded Image"> -->
+        <a href="{% url 'download_json' %}" download>
+            <button class="btn btn-success mb-3">ดาวน์โหลด JSON</button>
+        </a>
+    {% endif %}
+
+
+
+    <h4>ข้อมูลนักศึกษา</h4>
+    {% for student in studentInfo %}
+        <p style="margin-left: 20px;"><li>{{student}}</li></p>
+    {% endfor %}
+
+    <h4>ตารางวิชา</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">รหัสวิชา</th>
+                <th scope="col">ชื่อวิชา</th>
+                <th scope="col">หน่วยกิต</th>
+                <th scope="col">เกรดที่ได้</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject_code, subject_name, credit, academic_results in combined_list %}
+            <tr>
+                <td>{{subject_code}}</td>
+                <td>{{subject_name}}</td>
+                <td>{{credit}}</td>
+                <td>{{academic_results}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}
