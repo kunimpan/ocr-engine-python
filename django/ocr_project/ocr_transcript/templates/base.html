@@ -1,45 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Fonts: Sarabun -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    {% block title %}
-    {% endblock title %}
-    <style type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    {% block title %}{% endblock title %}
+
+    <style>
       body {
-        font-family: "Sarabun", serif;
+        font-family: "Sarabun", sans-serif;
+        background-color: #f8f9fa;
+      }
+      .navbar-brand {
+        font-weight: bold;
+      }
+      .container {
+        min-height: 80vh;
+      }
+      footer {
+        background-color: #343a40;
+        color: white;
+        text-align: center;
+        padding: 10px;
       }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div class="container-fluid">
           <a class="navbar-brand" href="/">OCR Transcript</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                  aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="#">หน้าแรก</a>
+                <a class="nav-link active" href="/">🏠 หน้าแรก</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/">แบบฟอร์บันทึกข้อมูล</a>
+                <a class="nav-link" href="/high_school_tesseract">📄 มัธยมศึกษา TSR</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/">เกี่ยวกับเรา</a>
+                <a class="nav-link" href="/high_school">📄 มัธยมศึกษา</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/">ℹ️ เกี่ยวกับเรา</a>
               </li>
             </ul>
           </div>
         </div>
-      </nav>
-    <div class="container my-2">
-        {% block content %}
-        {% endblock %}
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        {% block content %}{% endblock %}
     </div>
+
+    <!-- Footer -->
+    <footer class="mt-4">
+        <p>&copy; 2025 OCR Transcript | Powered by Django & Bootstrap</p>
+    </footer>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-YudlN9FTO50a6lF7rX8PjXkFadnFj4+3eFzjFBE5LOzvc90D5f1zoh1HdE9sFoJf"
+            crossorigin="anonymous"></script>
+
 </body>
 </html>

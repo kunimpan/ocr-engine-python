@@ -1,0 +1,603 @@
+[
+    {
+        "student_info": {
+            "name": "นายกระวี",
+            "lastname": "สยะใหญ่",
+            "math_credits": "15.0",
+            "math_grade": "3.90",
+            "science_credits": "40.0",
+            "science_grade": "3.37",
+            "gpa": "3.60"
+        },
+        "enrolled_subjects": [
+            {
+                "subject_code": "ท31101",
+                "subject_name": "กาษาไทย ใ",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ค31101",
+                "subject_name": "คมิตmสตร์ 1",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31101",
+                "subject_name": "าิทยาศาสตร่ชีวmพ 1",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ว31103",
+                "subject_name": "ใทคโน.โลยิวทmการฅ๋านาผ l",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ส31101",
+                "subject_name": "พน้าทีพลฒือง 1",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ส31102",
+                "subject_name": "พรw้พุทธ-บา l",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ31101",
+                "subject_name": "สุชศีกm l .",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ศ31101",
+                "subject_name": "ดบตรี l",
+                "credit": "05",
+                "grade": "0"
+            },
+            {
+                "subject_code": "อ31101",
+                "subject_name": "กาษาอ้งกฤษ 1",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ค3I201",
+                "subject_name": "คNิตmลตร์(สริบ 1",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31201",
+                "subject_name": "สิสืกส์ l",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31221",
+                "subject_name": "lคมี l",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว3I241",
+                "subject_name": "ชีววิหยา 1",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31261",
+                "subject_name": "โลก ตาราศาสตร์และอากาฅ l",
+                "credit": "1.0",
+                "grade": "2.5"
+            },
+            {
+                "subject_code": "พ30213",
+                "subject_name": "กรีทา",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ31202",
+                "subject_name": "กาษาอ้งกฤwาน - ไขียบ l",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ทญจ3ญ1ญ170ญญ2ญญจทวญพญวญ1ญทอญ2จจ",
+                "subject_name": "--------- -",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ค31102",
+                "subject_name": "คฆิต-ตร์ 2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31102",
+                "subject_name": "าิทยาศุหตร์ขีวภาพ 2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ส31103",
+                "subject_name": "หน้าหีพลฌือง 2 -",
+                "credit": "1.0",
+                "grade": "0"
+            },
+            {
+                "subject_code": "ส31104",
+                "subject_name": "พรน้พุทธศาสนา2",
+                "credit": "075",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ31102",
+                "subject_name": "สุขศีก-ษา2",
+                "credit": "0.5",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ศ31102",
+                "subject_name": "ดนตรี 2",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ง31101",
+                "subject_name": "การปานอาชีพ",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ31102",
+                "subject_name": "ถาwอ้งกฤษ2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ค31202",
+                "subject_name": "คมิตฅาสตร์lสริม 2 ฒฒฒ",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31202",
+                "subject_name": "สิสิกส์ 2 t-",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31222",
+                "subject_name": "เคมี 2 .",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31242",
+                "subject_name": "Uีxิทยา 2 Cไ",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว31262",
+                "subject_name": "โลกดา5าศาลตร์แลv้อากาศ 2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ30207",
+                "subject_name": "ฟุตบx",
+                "credit": "085",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ31204",
+                "subject_name": "ภาษาอ้งถฤษอาน-เฃียน2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ท7321201",
+                "subject_name": "ก-าษ--าไท-ย- 3",
+                "credit": "1.0",
+                "grade": "0"
+            },
+            {
+                "subject_code": "ค32101",
+                "subject_name": "คNิตฅาสตร์ 3",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว32101",
+                "subject_name": "าิทยาศาสดร์กายกาพ l",
+                "credit": "1.0",
+                "grade": "2.5"
+            },
+            {
+                "subject_code": "ว32105",
+                "subject_name": "การออกแบบและเทคโนโลยี l",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ส32101",
+                "subject_name": "กูมีศาสตร์",
+                "credit": "150",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ส32102",
+                "subject_name": "พระพุทธศาสนา 3",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ32101",
+                "subject_name": "สุบสกษา 3",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ศ32101",
+                "subject_name": "m-ฏศิลง 1",
+                "credit": "0.5",
+                "grade": "3"
+            },
+            {
+                "subject_code": "อ32101",
+                "subject_name": "ถาษาอ้งกฤษ-3",
+                "credit": "1.0",
+                "grade": "2.5"
+            },
+            {
+                "subject_code": "ค32201",
+                "subject_name": "คพิตศาสตร์เสริม 3",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว32203",
+                "subject_name": "สิส๊กส์ 3",
+                "credit": "145",
+                "grade": "3ผ5"
+            },
+            {
+                "subject_code": "ว32223",
+                "subject_name": "เคมี 3",
+                "credit": "1.5",
+                "grade": "1"
+            },
+            {
+                "subject_code": "ว32243",
+                "subject_name": "ชีววิทm 3",
+                "credit": "140",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ว32263",
+                "subject_name": "โลก ดาราฅ*ตร์แล=ูากาศ 3",
+                "credit": "140",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "พ30211",
+                "subject_name": "เปตอง",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ32202",
+                "subject_name": "ภาษาอังกฤษอ่าน -เขียน 3",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "I30201",
+                "subject_name": "การศีถษาค้้นคว์าด้ายตนเอง(lSl)",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ทจ3ญญ2ญ1จ0ญ2I9ศจทวญI",
+                "subject_name": "-ภา-ษ-าไีท--ยq-. w.แ----w- -",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ค32I02",
+                "subject_name": "คมิตศาสตร์ 4",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว32102",
+                "subject_name": "วิทยาฅ=ตร์กายกาพ 2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว32104",
+                "subject_name": "ออกแบบแลvเทคโนโลยี 2",
+                "credit": "0.5",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ส32103",
+                "subject_name": "เฅร*ศาสตธ์",
+                "credit": "1.0",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ส32104",
+                "subject_name": "ทระพุทธศาสนา q",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ32102",
+                "subject_name": "สุฃสกษา q",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ศ32102",
+                "subject_name": "นาฏคลง 2",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ32102",
+                "subject_name": "ภาษาอ้งกฤษ4 -",
+                "credit": "1.0",
+                "grade": "2"
+            },
+            {
+                "subject_code": "ค32202",
+                "subject_name": "คธตศาสตtเสธ๊ม4",
+                "credit": "1.5",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ว32204",
+                "subject_name": "สสิกส์ c",
+                "credit": "1.5",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ว32220",
+                "subject_name": "เฅมีq",
+                "credit": "1.0",
+                "grade": "2.5"
+            },
+            {
+                "subject_code": "ว32244",
+                "subject_name": "ชีาิาทยา q",
+                "credit": "1.5",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ว32264",
+                "subject_name": "โลก ตาราฅาสตร์และmกาศ q",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "พ30208",
+                "subject_name": "แบตมินต้น",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ32204",
+                "subject_name": "กาษา.อ้งกฤษอ่าน-เรยน 4",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "I30202",
+                "subject_name": "การสีอสาร-แ=้ถารน์าเสนอ(lS2)",
+                "credit": "1.0",
+                "grade": "2.5"
+            },
+            {
+                "subject_code": "ทญ331501",
+                "subject_name": "-ภาษ-าไิท-ย 5",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ค33101",
+                "subject_name": "คณิตศาสตร์ 5",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว33101",
+                "subject_name": "วิทยาฅาสตโุลกแลwูอวกาค 1",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว33103",
+                "subject_name": "เทคโบโลยีวิทยาการm๋นวN2",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ส33101",
+                "subject_name": "ปรmิตฅาสตสุทย",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ33101",
+                "subject_name": "ลุบศึกษา 5",
+                "credit": "05",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ศ33101",
+                "subject_name": "ท้ศบศิลง l",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ33101",
+                "subject_name": "กาษาอังกฤษ5",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ค33201",
+                "subject_name": "คณิตศาสต-ร์เสริม 5",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว33205",
+                "subject_name": "ฟีสิกส์ 5",
+                "credit": "1.5",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ว33225",
+                "subject_name": "เคมี 5",
+                "credit": "1.0",
+                "grade": "2"
+            },
+            {
+                "subject_code": "ว33245",
+                "subject_name": "ชีววิทยา 5",
+                "credit": "1.5",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ว33265",
+                "subject_name": "โลก ดาราศาสตร์และอากาศ 5",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ30204",
+                "subject_name": "บาสเกตบอูล",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "จ30201",
+                "subject_name": "กาษาจีบเบื้องต้บ 1",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "อ33202",
+                "subject_name": "ภาษาอ้งกฤษอ่าน-(Uีย.น 5",
+                "credit": "1.0",
+                "grade": "3ผ5"
+            },
+            {
+                "subject_code": "ทจ3ศส3ศ1ญ0ญ2ญส8จทญ4",
+                "subject_name": "rภ-า-ษ่-ไัท-ย -6. ..------v -",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ค33I02",
+                "subject_name": "คNิตศาสตร์ 6",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว33102",
+                "subject_name": "าิทยาศาสตKุลกแลWัอากาศ 2",
+                "credit": "1.0",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ส33102",
+                "subject_name": "ปรษ์ิmmสตร์mกล",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "พ33102",
+                "subject_name": "สุUสกษา 6",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ศ33102",
+                "subject_name": "ทัืศนคลง 2",
+                "credit": "0.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ง33101",
+                "subject_name": "การrนอาชีพ",
+                "credit": "0.5",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "อ33102",
+                "subject_name": "ภาwอ้งกฤษ6",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "ค33202",
+                "subject_name": "คผิตศาสตr5์เสริม 6",
+                "credit": "1.5",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว33206",
+                "subject_name": "ฟิสิกส์ 6",
+                "credit": "2.0",
+                "grade": "3"
+            },
+            {
+                "subject_code": "ว33226",
+                "subject_name": "เคมี 6",
+                "credit": "1.0",
+                "grade": "4"
+            },
+            {
+                "subject_code": "ว33247",
+                "subject_name": "ชีววิทยา 6",
+                "credit": "1.5",
+                "grade": "85"
+            },
+            {
+                "subject_code": "ว33266",
+                "subject_name": "โลก ดาราศ*ตร์แลw้อากาฅ 6",
+                "credit": "1.0",
+                "grade": "0"
+            },
+            {
+                "subject_code": "พ30210",
+                "subject_name": "ฟุตชอล",
+                "credit": "0.5",
+                "grade": "0"
+            },
+            {
+                "subject_code": "จ30202",
+                "subject_name": "ภ-าษาจีนไฎูองต้น 2",
+                "credit": "1.0",
+                "grade": "3.5"
+            },
+            {
+                "subject_code": "อ33204",
+                "subject_name": "ภาษาอังกฤษอาน-เUียบ 6",
+                "credit": "1.0",
+                "grade": "2.5"
+            }
+        ]
+    }
+]
