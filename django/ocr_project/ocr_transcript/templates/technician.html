@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>มัธยมศึกษา TSR</title>
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="text-center">📄 อาชีวศึกษา</h3>
+
+    <!-- Form Upload -->
+    <div class="card shadow p-3 mb-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="input-group">
+                <label class="input-group-text" for="inputGroupFile01">📎 ใบทรานสคริปต์</label>
+                <input type="file" class="form-control" id="inputGroupFile01" name="file_uploads" multiple>
+                <button class="btn btn-success" type="submit">📤 อัพโหลด</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Messages Alert -->
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                <div class="alert 
+                    {% if message.tags == 'success' %}alert-success
+                    {% elif message.tags == 'warning' %}alert-warning
+                    {% elif message.tags == 'error' %}alert-danger
+                    {% else %}alert-secondary
+                    {% endif %}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- แสดงไฟล์รูปภาพที่อัปโหลด -->
+    {% if saved_images %}
+    <div class="card shadow p-3 mb-4">
+        <h4 class="text-center">🖼️ ไฟล์รูปภาพที่อัปโหลด</h4>
+        <div class="d-flex flex-wrap justify-content-center">
+            {% for image_url in saved_images %}
+            <div class="text-center m-3">
+                <a href="{{ image_url }}" target="_blank">
+                    <img src="{{ image_url }}" alt="Uploaded Image" class="img-fluid rounded shadow" style="width: 150px; height: auto;">
+                </a>
+                <p class="mt-2">
+                    <a href="{{ image_url }}" target="_blank" class="btn btn-outline-primary btn-sm">🔍 ดูภาพขนาดเต็ม</a>
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ปุ่มดาวน์โหลด JSON -->
+    {% if json_url %}
+    <div class="text-center mb-4">
+        <a href="{% url 'download_json' %}" class="btn btn-primary">
+            📥 ดาวน์โหลด JSON
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- ข้อมูลนักศึกษา -->
+    {% if fullname %}
+    <div class="card shadow p-3 mb-4">
+        <h4 class="text-center">👨‍🎓 ข้อมูลนักศึกษา</h4>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><b>ชื่อ - นามสกุล:</b> {{ fullname }}</li>
+            <li class="list-group-item"><b>สาขาวิชา:</b> {{ field_of_study }}</li>
+            <li class="list-group-item"><b>สาขางาน:</b> {{ field_of_work }}</li>
+            <li class="list-group-item"><b>สาขางผลการเรียนฌฉลี่ยสะสม:</b> {{ gpa }}</li>
+            <li class="list-group-item"><b>วันที่จบการศึกษา:</b> {{ graduation_date }}</li>
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- ตารางผลการเรียน -->
+    {% if combined_list %}
+    <div class="card shadow p-3 mb-4">
+        <h4 class="text-center">📚 ตารางผลการเรียนรายวิชา</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">รหัสวิชา</th>
+                        <th scope="col">ชื่อวิชา</th>
+                        <th scope="col">หน่วยกิต</th>
+                        <th scope="col">เกรดที่ได้</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject_code, subject_name, credit, grade in combined_list %}
+                    <tr>
+                        <td>{{ subject_code }}</td>
+                        <td>{{ subject_name }}</td>
+                        <td>{{ credit }}</td>
+                        <td>{{ grade }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div> <!-- container -->
+{% endblock content %}

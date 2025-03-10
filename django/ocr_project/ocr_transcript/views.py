@@ -3,7 +3,6 @@ from django.conf import settings
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from PIL import Image
-from utilities.helper import cells_detect, create_grid_image, crop_image, detect_sub_text_in_group, detect_sub_text_in_group_stud, detect_text_group_in_cell, find_text_student_info_fh, find_text_student_info_sh, hough_line_transform, persective_transformation, predict_text, predict_text_stud, show_information, split_grade_table_and_students
 from pathlib import Path
 import cv2
 import matplotlib.pyplot as plt
@@ -14,6 +13,8 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 import utilities.file_check as fc
 import utilities.function_hs_tsr as hs_tsr
 import utilities.function_hs as hs
+import utilities.function_tn_tsr as tn_tsr
+import utilities.function_tn as tn
 import numpy as np
 from tensorflow.keras.models import load_model
 import tensorflow as tf
@@ -24,181 +25,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tess
 
 # Create your views here.
 def index(request):
-    if request.method == 'POST' and request.FILES['image']:
-        image = request.FILES['image']
-        fs = FileSystemStorage()
-        filename = fs.save(image.name, image)
-        file_path = Path(settings.MEDIA_ROOT) / image.name
-        uploaded_file_url = fs.url(filename)
-
-        image = cv2.imread(file_path)
-        denoised = cv2.bilateralFilter(image, d=9, sigmaColor=100, sigmaSpace=100) # จำกัด noise
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_TSR_DJ")
-        output_folder.mkdir(exist_ok=True)
-
-        binary_gaussian = cv2.adaptiveThreshold(
-            gray_img, 
-            maxValue=255, 
-            adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            thresholdType=cv2.THRESH_BINARY_INV, 
-            blockSize=51, 
-            C=21 #21
-        )
-
-        cv2.imwrite(f"{output_folder}/original.png", image)
-        cv2.imwrite(f"{output_folder}/denoised.png", denoised)
-        cv2.imwrite(f"{output_folder}/gray.png", gray_img)
-        cv2.imwrite(f"{output_folder}/binary_g.png", binary_gaussian)
-
-        table_img, student_info_img, student_info_fh_img, student_info_sh_img, table_original_img = split_grade_table_and_students(binary_gaussian, denoised)
-        table_persective_img, table_original_persective_img = persective_transformation(binary_gaussian, denoised)
-        grid_img = create_grid_image(table_persective_img)
-        line_mask, table_without_lines, table_without_lines_2 = hough_line_transform(table_persective_img, table_original_persective_img, grid_img)
-        cell_contours = cells_detect(grid_img)
-
-        cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-        cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
-        cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
-        cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-        cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-        cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
-        cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
-        cv2.imwrite(f"{output_folder}/grid_img.png", grid_img)
-
-        cell_images = crop_image(cell_contours, table_without_lines_2)
-
-        cell_subject_code_img = cell_images[0]
-        cell_subject_name_img = cell_images[1]
-        cell_credit_img = cell_images[2]
-        cell_academic_results_img = cell_images[3]
-        cell_subject_code_img_2 = cell_images[5]
-        cell_subject_name_img_2 = cell_images[6]
-        cell_credit_img_2 = cell_images[7]
-        cell_academic_results_img_2 = cell_images[8]
-
-        # ตารางครึ่งแรก
-        text_subject_code_images, calculate_line_stats_1, subject_code_img = detect_text_group_in_cell(cell_subject_code_img, 1)
-        text_subject_name_images, subject_name_img = detect_text_group_in_cell(cell_subject_name_img, 2, calculate_line_stats_1)
-        text_credit_images, credit_img = detect_text_group_in_cell(cell_credit_img, 2, calculate_line_stats_1)
-        text_academic_results_images, academic_results_img = detect_text_group_in_cell(cell_academic_results_img, 2, calculate_line_stats_1)
-
-        # ตารางครึ่งหลัง
-        text_subject_code_images_2, calculate_line_stats_2, subject_code_img_2 = detect_text_group_in_cell(cell_subject_code_img_2, 1)
-        text_subject_name_images_2, subject_name_img_2 = detect_text_group_in_cell(cell_subject_name_img_2, 2, calculate_line_stats_2)
-        text_credit_images_2, credit_img_2 = detect_text_group_in_cell(cell_credit_img_2, 2, calculate_line_stats_2)
-        text_academic_results_images_2, academic_results_img_2 = detect_text_group_in_cell(cell_academic_results_img_2, 2, calculate_line_stats_2)
-
-        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img.jpg", subject_code_img)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img.jpg", subject_name_img)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img.jpg", credit_img)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img.jpg", academic_results_img)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_2.jpg", subject_code_img_2)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_2.jpg", subject_name_img_2)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_2.jpg", credit_img_2)
-        cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_2.jpg", academic_results_img_2)
-
-        text_group_subject_code = detect_sub_text_in_group(text_subject_code_images)
-        text_group_subject_name = detect_sub_text_in_group(text_subject_name_images)
-        text_group_credit = detect_sub_text_in_group(text_credit_images)
-        text_group_academic_results = detect_sub_text_in_group(text_academic_results_images)
-        text_group_subject_code_2 = detect_sub_text_in_group(text_subject_code_images_2)
-        text_group_subject_name_2 = detect_sub_text_in_group(text_subject_name_images_2)
-        text_group_credit_2 = detect_sub_text_in_group(text_credit_images_2)
-        text_group_academic_results_2 = detect_sub_text_in_group(text_academic_results_images_2)
-
-        global text_box_subject_code_all
-        global text_box_subject_name_all
-        global text_box_credit_all
-        global text_box_academic_results_all
-
-        text_box_subject_code = predict_text(text_group_subject_code, 1)
-        text_box_subject_name = predict_text(text_group_subject_name)
-        text_box_credit = predict_text(text_group_credit, 3)
-        text_box_academic_results = predict_text(text_group_academic_results, 4)
-        text_box_subject_code_2 = predict_text(text_group_subject_code_2, 1)
-        text_box_subject_name_2 = predict_text(text_group_subject_name_2)
-        text_box_credit_2 = predict_text(text_group_credit_2, 3)
-        text_box_academic_results_2 = predict_text(text_group_academic_results_2, 4)
-
-        text_box_subject_code_all = text_box_subject_code + text_box_subject_code_2
-        text_box_subject_name_all = text_box_subject_name + text_box_subject_name_2
-        text_box_credit_all = text_box_credit + text_box_credit_2
-        text_box_academic_results_all = text_box_academic_results + text_box_academic_results_2
-
-        combined_list = list(zip(text_box_subject_code_all, text_box_subject_name_all, text_box_credit_all, text_box_academic_results_all))
-
-        text_stud_fh_images = find_text_student_info_fh(student_info_fh_img)
-        text_stud_sh_images = find_text_student_info_sh(student_info_sh_img)
-
-        indices_fh = [3, -2, -1]
-        indices_sh = [-3, -1]
-        student_name, field_of_study, field_of_work = [text_stud_fh_images[i] for i in indices_fh]
-        cgpa, graduation_date = [text_stud_sh_images[i] for i in indices_sh]
-
-        text_group_student_name = detect_sub_text_in_group_stud(student_name)
-        text_group_field_of_study = detect_sub_text_in_group_stud(field_of_study)
-        text_group_field_of_work = detect_sub_text_in_group_stud(field_of_work)
-
-        text_group_cgpa = detect_sub_text_in_group_stud(cgpa)
-        text_group_graduation_date = detect_sub_text_in_group_stud(graduation_date)
-
-        text_box_student_name = predict_text_stud(text_group_student_name[3:], 1)
-        text_box_field_of_study = predict_text_stud(text_group_field_of_study[1:], 1)
-        text_box_field_of_work = predict_text_stud(text_group_field_of_work[1:], 1)
-
-        text_box_cgpa = predict_text_stud(text_group_cgpa[1:], 1)
-        text_box_graduation_date = predict_text_stud(text_group_graduation_date[1:], 1)
-
-
-        return render(request, 'index.html', {
-            'uploaded_file_url':uploaded_file_url,
-            'student_name':text_box_student_name,
-            'field_of_study':text_box_field_of_study,
-            'field_of_work':text_box_field_of_work,
-            'cgpa':text_box_cgpa,
-            'graduation_date':text_box_graduation_date,
-            #'studentInfo':studentInfo_text_box[2:],
-            #'subject_code':text_box_subject_code,
-            #'subject_name':text_box_subject_name,
-            #'credit':text_box_credit,
-            #'academic_results':text_box_academic_results,
-            #'subject_code_2':text_box_subject_code_2,
-            #'subject_name_2':text_box_subject_name_2,
-            #'credit_2':text_box_credit_2,
-            #'academic_results_2':text_box_academic_results_2,
-            'combined_list':combined_list
-        })
-
-        '''
-        print("จำนวนรหัสวิชา:" ,len(text_box_subject_code))
-        show_information(text_box_subject_code)
-
-        print("จำนวนชื่อวิชา:" ,len(text_box_subject_code))
-        show_information(text_box_subject_name)
-
-        print("จำนวนหน่วยกิต:" ,len(text_box_credit))
-        show_information(text_box_credit)
-
-        print("จำนวนผลการเรียน:" ,len(text_box_academic_results))
-        show_information(text_box_academic_results)
-
-        print("จำนวนรหัสวิชา 2:" ,len(text_box_subject_code_2))
-        show_information(text_box_subject_code_2)
-
-        print("จำนวนชื่อวิชา 2:" ,len(text_box_subject_code_2))
-        show_information(text_box_subject_name_2)
-
-        print("จำนวนหน่วยกิต 2:" ,len(text_box_credit_2))
-        show_information(text_box_credit_2)
-
-        print("จำนวนผลการเรียน 2:" ,len(text_box_academic_results_2))
-        show_information(text_box_academic_results_2)
-        '''
-
-    else:
-        return render(request, 'index.html')
+    return render(request, 'index.html')
 
 
 def high_school_tesseract(request):
@@ -570,7 +397,6 @@ def high_school_tesseract(request):
             
     else:
         return render(request, 'high_school_tesseract.html')
-
 
 def high_school(request):
     if request.method == 'POST' and 'file_uploads' in request.FILES:
@@ -1012,6 +838,537 @@ def high_school(request):
 
     return render(request, 'high_school.html')
 
+def technician_tesseract(request):
+    if request.method == 'POST' and 'file_uploads' in request.FILES:
+        uploaded_files = request.FILES.getlist('file_uploads')  # รับไฟล์ทั้งหมด
+
+        media_path = Path(settings.MEDIA_ROOT)  # ใช้ pathlib.Path
+        media_path.mkdir(parents=True, exist_ok=True)  # สร้างโฟลเดอร์ media/ ถ้ายังไม่มี
+
+        saved_images = []
+        pillow_images = []
+        for idx, file in enumerate(uploaded_files):
+            file_type = fc.check_file_type(file)
+
+            if file_type == "Image":
+                # บันทึกเฉพาะไฟล์รูปภาพลงโฟลเดอร์ media/
+                image_path = media_path / file.name
+                with image_path.open('wb+') as destination:
+                    for chunk in file.chunks():
+                        destination.write(chunk)
+
+                img = Image.open(file)
+                pillow_images.append(img)
+                        
+                image_url = settings.MEDIA_URL + file.name
+                saved_images.append(image_url)
+                messages.success(request, f"อัปโหลด {file.name} สำเร็จ!")
+
+            elif file_type == "PDF":
+                messages.warning(request, f"อัปโหลด {file.name} สำเร็จ แต่ยังไม่ได้บันทึก (PDF)")
+
+            else:
+                messages.error(request, f"{file.name} ไม่ใช่ไฟล์ที่รองรับ!") 
+
+        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_TSR_DJ")
+        output_folder.mkdir(exist_ok=True)
+
+        print("pillow_images:", len(pillow_images))
+
+        if len(saved_images) > 0:
+            # f คือ front
+            if len(saved_images) == 1:
+                f_image = pillow_images[0]
+            else:
+                f_image = pillow_images[1]
+            #f_image = Image.open(f"..{saved_images[0]}")
+            f_new_size = (1660, 2347)
+            f_resized_pil = f_image.resize(f_new_size, Image.LANCZOS)
+            f_img_rgb = np.array(f_resized_pil)
+            f_img_cv = cv2.cvtColor(f_img_rgb, cv2.COLOR_RGB2BGR)
+            f_denoised = cv2.bilateralFilter(f_img_cv, d=9, sigmaColor=75, sigmaSpace=75) # จำกัด noise
+            f_gray_img = cv2.cvtColor(f_denoised, cv2.COLOR_BGR2GRAY)
+        
+            f_binary_gaussian = cv2.adaptiveThreshold(
+                f_gray_img, 
+                maxValue=255, 
+                adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                thresholdType=cv2.THRESH_BINARY_INV, 
+                blockSize=51, #51
+                C=9 #21 #15
+            )
+
+            # สร้าง kernel สำหรับ morphological operation
+            kernel = np.ones((3, 3), np.uint8)
+            f_dilated = cv2.dilate(f_binary_gaussian, kernel, iterations=1)
+            f_closed_dummy = cv2.morphologyEx(f_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+            cv2.imwrite(f"{output_folder}/img_cv.png", f_img_cv)
+            cv2.imwrite(f"{output_folder}/denoised.png", f_denoised)
+            cv2.imwrite(f"{output_folder}/gray.png", f_gray_img)
+            cv2.imwrite(f"{output_folder}/binary_g.png", f_binary_gaussian)
+            cv2.imwrite(f"{output_folder}/dilated.png", f_dilated)
+            cv2.imwrite(f"{output_folder}/closed_dummy.png", f_closed_dummy)
+
+            # แยกตารางเกรดกับข้อมูลนักศึกษา
+            table_img, table_dummy_img, table_original_img, student_info_img, student_info_fh_img, student_info_sh_img = tn_tsr.split_grade_table_and_students(f_binary_gaussian, f_denoised, f_dilated)
+            table_persective_img, table_original_persective_img, table_dummy_persective_img = tn_tsr.persective_transformation(f_binary_gaussian, f_denoised, f_dilated)
+
+            cv2.imwrite(f"{output_folder}/table_img.png", table_img)
+            cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
+            cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
+            cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
+            cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
+            cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
+
+            cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
+            cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
+            cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
+
+            ## ตารางเกรด
+            # หา column ของตาราง
+
+            cell_images = tn_tsr.find_table_columns_rows(table_dummy_persective_img, table_persective_img)
+
+            cell_subject_code_img = cell_images[0]
+            cell_subject_name_img = cell_images[1]
+            cell_credit_img = cell_images[2]
+            cell_academic_results_img = cell_images[3]
+            cell_subject_code_img_2 = cell_images[5]
+            cell_subject_name_img_2 = cell_images[6]
+            cell_credit_img_2 = cell_images[7]
+            cell_academic_results_img_2 = cell_images[8]
+
+            # จับกลุ่มข้อความของ cell ตาราง
+            # ตารางครึ่งแรก
+            text_subject_code_images, calculate_line_stats_1, subject_code_img = tn_tsr.detect_text_group_in_cell(cell_subject_code_img, 1)
+            text_subject_name_images, subject_name_img = tn_tsr.detect_text_group_in_cell(cell_subject_name_img, 2, calculate_line_stats_1)
+            text_credit_images, credit_img = tn_tsr.detect_text_group_in_cell(cell_credit_img, 2, calculate_line_stats_1)
+            text_academic_results_images, academic_results_img = tn_tsr.detect_text_group_in_cell(cell_academic_results_img, 2, calculate_line_stats_1)
+
+            # ตารางครึ่งหลัง
+            text_subject_code_images_2, calculate_line_stats_2, subject_code_img_2 = tn_tsr.detect_text_group_in_cell(cell_subject_code_img_2, 1)
+            text_subject_name_images_2, subject_name_img_2 = tn_tsr.detect_text_group_in_cell(cell_subject_name_img_2, 2, calculate_line_stats_2)
+            text_credit_images_2, credit_img_2 = tn_tsr.detect_text_group_in_cell(cell_credit_img_2, 2, calculate_line_stats_2)
+            text_academic_results_images_2, academic_results_img_2 = tn_tsr.detect_text_group_in_cell(cell_academic_results_img_2, 2, calculate_line_stats_2)
+
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img.jpg", subject_code_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img.jpg", subject_name_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img.jpg", credit_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img.jpg", academic_results_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_2.jpg", subject_code_img_2)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_2.jpg", subject_name_img_2)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_2.jpg", credit_img_2)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_2.jpg", academic_results_img_2)
+
+            # จับข้อความย่อยในกลุ่มข้อความของ cell ตาราง
+            text_group_subject_code = tn_tsr.detect_sub_text_in_group(text_subject_code_images)
+            text_group_subject_name = tn_tsr.detect_sub_text_in_group(text_subject_name_images)
+            text_group_credit = tn_tsr.detect_sub_text_in_group(text_credit_images)
+            text_group_academic_results = tn_tsr.detect_sub_text_in_group(text_academic_results_images)
+
+            text_group_subject_code_2 = tn_tsr.detect_sub_text_in_group(text_subject_code_images_2)
+            text_group_subject_name_2 = tn_tsr.detect_sub_text_in_group(text_subject_name_images_2)
+            text_group_credit_2 = tn_tsr.detect_sub_text_in_group(text_credit_images_2)
+            text_group_academic_results_2 = tn_tsr.detect_sub_text_in_group(text_academic_results_images_2)
+
+            # การทำนาย
+            text_box_subject_code = tn_tsr.predict_text(text_group_subject_code, 1)
+            text_box_subject_name = tn_tsr.predict_text(text_group_subject_name)
+            text_box_credit = tn_tsr.predict_text(text_group_credit, 3)
+            text_box_academic_results = tn_tsr.predict_text(text_group_academic_results, 0)
+            text_box_subject_code_2 = tn_tsr.predict_text(text_group_subject_code_2, 1)
+            text_box_subject_name_2 = tn_tsr.predict_text(text_group_subject_name_2)
+            text_box_credit_2 = tn_tsr.predict_text(text_group_credit_2, 3)
+            text_box_academic_results_2 = tn_tsr.predict_text(text_group_academic_results_2, 0)
+            
+            ## ข้อมูลนักศึกษา
+            text_stud_fh_images = tn_tsr.find_text_student_info_fh(student_info_fh_img)
+            text_stud_sh_images = tn_tsr.find_text_student_info_sh(student_info_sh_img)
+
+            indices_fh = [3, -2, -1]
+            indices_sh = [-3, -1]
+            student_name, field_of_study, field_of_work = [text_stud_fh_images[i] for i in indices_fh]
+            gpa, graduation_date = [text_stud_sh_images[i] for i in indices_sh]
+
+            # จับกลุ่มข้อความย่อย
+            text_group_student_name = tn_tsr.detect_sub_text_in_group_stud(student_name)
+            text_group_field_of_study = tn_tsr.detect_sub_text_in_group_stud(field_of_study)
+            text_group_field_of_work = tn_tsr.detect_sub_text_in_group_stud(field_of_work)
+
+            text_group_gpa = tn_tsr.detect_sub_text_in_group_stud(gpa)
+            text_group_graduation_date = tn_tsr.detect_sub_text_in_group_stud(graduation_date)
+
+            # ทำนาย
+            text_box_student_name = tn_tsr.predict_text_stud(text_group_student_name[3:], 1)
+            text_box_field_of_study = tn_tsr.predict_text_stud(text_group_field_of_study[1:], 1)
+            text_box_field_of_work = tn_tsr.predict_text_stud(text_group_field_of_work[1:], 1)
+
+            text_box_gpa = tn_tsr.predict_text_stud(text_group_gpa[1:], 1)
+            text_box_graduation_date = tn_tsr.predict_text_stud(text_group_graduation_date[1:], 1)
+
+            ## JSON
+            # ทำการรวม list
+            text_box_subject_code_all = text_box_subject_code + text_box_subject_code_2
+            text_box_subject_name_all = text_box_subject_name + text_box_subject_name_2
+            text_box_credit_all = text_box_credit + text_box_credit_2
+            text_box_academic_results_all = text_box_academic_results + text_box_academic_results_2
+
+            # ลบช่องว่างด้วย list comprehension
+            subject_codes = [scode.replace(" ", "") for scode in text_box_subject_code_all]
+            subject_names = [sname.strip() for sname in text_box_subject_name_all]
+            credits = [credit.replace(" ", "") for credit in text_box_credit_all] 
+            grades = [grade.replace(" ", "") for grade in text_box_academic_results_all]
+
+            combined_list = list(zip(subject_codes, subject_names, credits, grades))
+
+            student_name = text_box_student_name.strip()
+            field_of_study = text_box_field_of_study.replace(" ", "")
+            field_of_work = text_box_field_of_work.replace(" ", "")
+            gpa = text_box_gpa.replace(" ", "")
+            graduation_date = text_box_graduation_date.strip()
+
+            enrolled_subjects = []
+            for scode, sname, credit, grade in zip(subject_codes, subject_names, credits, grades):
+                enrolled_subjects.append({
+                "subject_code": scode,
+                "subject_name": sname,
+                "credit": credit,
+                "grade": grade
+            })
+                
+            # สร้างโครงสร้าง JSON ในรูปแบบของ dictionary
+            data = {
+                "student_info": {
+                    "fullname": student_name,
+                    "field_of_study": field_of_study,
+                    "field_of_work": field_of_work,
+                    "gpa": gpa,
+                    "graduation_date":graduation_date
+                },
+                "enrolled_subjects": enrolled_subjects
+            }
+
+            # แปลง Python dictionary เป็น JSON string
+            json_path = media_path / "transcript.json"
+            with json_path.open("w", encoding="utf-8") as json_file:
+                json.dump([data], json_file, indent=4, ensure_ascii=False)
+                
+            return render(request, 'technician_tesseract.html', {
+                'saved_images': saved_images,
+                'fullname':student_name,
+                'field_of_study': field_of_study,
+                'field_of_work': field_of_work,
+                'gpa': gpa,
+                'graduation_date':graduation_date,               
+                'combined_list':combined_list,
+                'json_url': settings.MEDIA_URL + "transcript.json"
+            })               
+
+    else:
+        return render(request, 'technician_tesseract.html')
+
+def technician(request):
+    if request.method == 'POST' and 'file_uploads' in request.FILES:
+        uploaded_files = request.FILES.getlist('file_uploads')  # รับไฟล์ทั้งหมด
+
+        media_path = Path(settings.MEDIA_ROOT)  # ใช้ pathlib.Path
+        media_path.mkdir(parents=True, exist_ok=True)  # สร้างโฟลเดอร์ media/ ถ้ายังไม่มี
+
+        saved_images = []
+        pillow_images = []
+        for idx, file in enumerate(uploaded_files):
+            file_type = fc.check_file_type(file)
+
+            if file_type == "Image":
+                # บันทึกเฉพาะไฟล์รูปภาพลงโฟลเดอร์ media/
+                image_path = media_path / file.name
+                with image_path.open('wb+') as destination:
+                    for chunk in file.chunks():
+                        destination.write(chunk)
+
+                img = Image.open(file)
+                pillow_images.append(img)
+                        
+                image_url = settings.MEDIA_URL + file.name
+                saved_images.append(image_url)
+                messages.success(request, f"อัปโหลด {file.name} สำเร็จ!")
+
+            elif file_type == "PDF":
+                messages.warning(request, f"อัปโหลด {file.name} สำเร็จ แต่ยังไม่ได้บันทึก (PDF)")
+
+            else:
+                messages.error(request, f"{file.name} ไม่ใช่ไฟล์ที่รองรับ!") 
+
+        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ")
+        output_folder.mkdir(exist_ok=True)
+
+        print("pillow_images:", len(pillow_images))
+
+        if len(saved_images) > 0:
+            # f คือ front
+            if len(saved_images) == 1:
+                f_image = pillow_images[0]
+            else:
+                f_image = pillow_images[1]
+            #f_image = Image.open(f"..{saved_images[0]}")
+            f_new_size = (1660, 2347)
+            f_resized_pil = f_image.resize(f_new_size, Image.LANCZOS)
+            f_img_rgb = np.array(f_resized_pil)
+            f_img_cv = cv2.cvtColor(f_img_rgb, cv2.COLOR_RGB2BGR)
+            f_denoised = cv2.bilateralFilter(f_img_cv, d=9, sigmaColor=75, sigmaSpace=75) # จำกัด noise
+            f_gray_img = cv2.cvtColor(f_denoised, cv2.COLOR_BGR2GRAY)
+        
+            f_binary_gaussian = cv2.adaptiveThreshold(
+                f_gray_img, 
+                maxValue=255, 
+                adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                thresholdType=cv2.THRESH_BINARY_INV, 
+                blockSize=51, #51
+                C=9 #21 #15
+            )
+
+            # สร้าง kernel สำหรับ morphological operation
+            kernel = np.ones((3, 3), np.uint8)
+            f_dilated = cv2.dilate(f_binary_gaussian, kernel, iterations=1)
+            f_closed_dummy = cv2.morphologyEx(f_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+            cv2.imwrite(f"{output_folder}/img_cv.png", f_img_cv)
+            cv2.imwrite(f"{output_folder}/denoised.png", f_denoised)
+            cv2.imwrite(f"{output_folder}/gray.png", f_gray_img)
+            cv2.imwrite(f"{output_folder}/binary_g.png", f_binary_gaussian)
+            cv2.imwrite(f"{output_folder}/dilated.png", f_dilated)
+            cv2.imwrite(f"{output_folder}/closed_dummy.png", f_closed_dummy)
+
+            # แยกตารางเกรดกับข้อมูลนักศึกษา
+            table_img, table_dummy_img, table_original_img, student_info_img, student_info_fh_img, student_info_sh_img = tn.split_grade_table_and_students(f_binary_gaussian, f_denoised, f_dilated)
+            table_persective_img, table_original_persective_img, table_dummy_persective_img = tn.persective_transformation(f_binary_gaussian, f_denoised, f_dilated)
+
+            cv2.imwrite(f"{output_folder}/table_img.png", table_img)
+            cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
+            cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
+            cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
+            cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
+            cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
+
+            cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
+            cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
+            cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
+
+            ## ตารางเกรด
+            # หา column ของตาราง
+
+            cell_images = tn.find_table_columns_rows(table_dummy_persective_img, table_persective_img)
+
+            cell_subject_code_img = cell_images[0]
+            cell_subject_name_img = cell_images[1]
+            cell_credit_img = cell_images[2]
+            cell_academic_results_img = cell_images[3]
+            cell_subject_code_img_2 = cell_images[5]
+            cell_subject_name_img_2 = cell_images[6]
+            cell_credit_img_2 = cell_images[7]
+            cell_academic_results_img_2 = cell_images[8]
+
+            # จับกลุ่มข้อความของ cell ตาราง
+            # ตารางครึ่งแรก
+            text_subject_code_images, calculate_line_stats_1, subject_code_img = tn.detect_text_group_in_cell(cell_subject_code_img, 1)
+            text_subject_name_images, subject_name_img = tn.detect_text_group_in_cell(cell_subject_name_img, 2, calculate_line_stats_1)
+            text_credit_images, credit_img = tn.detect_text_group_in_cell(cell_credit_img, 2, calculate_line_stats_1)
+            text_academic_results_images, academic_results_img = tn.detect_text_group_in_cell(cell_academic_results_img, 2, calculate_line_stats_1)
+
+            # ตารางครึ่งหลัง
+            text_subject_code_images_2, calculate_line_stats_2, subject_code_img_2 = tn.detect_text_group_in_cell(cell_subject_code_img_2, 1)
+            text_subject_name_images_2, subject_name_img_2 = tn.detect_text_group_in_cell(cell_subject_name_img_2, 2, calculate_line_stats_2)
+            text_credit_images_2, credit_img_2 = tn.detect_text_group_in_cell(cell_credit_img_2, 2, calculate_line_stats_2)
+            text_academic_results_images_2, academic_results_img_2 = tn.detect_text_group_in_cell(cell_academic_results_img_2, 2, calculate_line_stats_2)
+
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img.jpg", subject_code_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img.jpg", subject_name_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img.jpg", credit_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img.jpg", academic_results_img)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_2.jpg", subject_code_img_2)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_2.jpg", subject_name_img_2)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_2.jpg", credit_img_2)
+            cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_2.jpg", academic_results_img_2)
+
+            # จับข้อความย่อยในกลุ่มข้อความของ cell ตาราง
+            text_group_subject_code = tn.detect_sub_text_in_group(text_subject_code_images)
+            text_group_subject_name = tn.detect_sub_text_in_group(text_subject_name_images)
+            text_group_credit = tn.detect_sub_text_in_group(text_credit_images)
+            text_group_academic_results = tn.detect_sub_text_in_group(text_academic_results_images)
+
+            text_group_subject_code_2 = tn.detect_sub_text_in_group(text_subject_code_images_2)
+            text_group_subject_name_2 = tn.detect_sub_text_in_group(text_subject_name_images_2)
+            text_group_credit_2 = tn.detect_sub_text_in_group(text_credit_images_2)
+            text_group_academic_results_2 = tn.detect_sub_text_in_group(text_academic_results_images_2)
+
+
+            # จับตัวอักษร
+            
+            text_group_char_subject_code = tn.detect_one_level_of_char(text_group_subject_code[:])
+            text_group_char_subject_name = tn.detect_char(text_group_subject_name[:])
+            text_group_char_credit = tn.detect_one_level_of_char(text_group_credit[:])
+            text_group_char_academic_results = tn.detect_one_level_of_char(text_group_academic_results[:])
+
+
+            text_group_char_subject_code_2 = tn.detect_one_level_of_char(text_group_subject_code_2[:])
+            text_group_char_subject_name_2 = tn.detect_char(text_group_subject_name_2[:])
+            text_group_char_credit_2 = tn.detect_one_level_of_char(text_group_credit_2[:])
+            text_group_char_academic_results_2 = tn.detect_one_level_of_char(text_group_academic_results_2[:])
+
+           
+            # โหลดโมเดล
+            model_path = Path("C:/Users/Impan/Documents/ocr-engine-python/models")
+            model_path_char_subject_code_tn = f"{model_path}/char_subject_code_tn_model.h5"
+            model_path_char_academic_results_tn = f"{model_path}/char_academic_results_tn_model.h5"
+
+            model_char_subject_code_tn = load_model(model_path_char_subject_code_tn)
+            model_char_academic_results_tn= load_model(model_path_char_academic_results_tn)
+
+            # ทำนายตัวอักษร 1 ระดับ
+            text_box_subject_code = tn.predict_text_one_level(text_group_char_subject_code[:], 0, model_char_subject_code_tn, model_char_academic_results_tn)
+            text_box_credit = tn.predict_text_one_level(text_group_char_credit, 0, model_char_subject_code_tn, model_char_academic_results_tn)
+            text_box_academic_results = tn.predict_text_one_level(text_group_char_academic_results, 1, model_char_subject_code_tn, model_char_academic_results_tn)
+
+            text_box_subject_code_2 = tn.predict_text_one_level(text_group_char_subject_code_2[:], 0, model_char_subject_code_tn, model_char_academic_results_tn)
+            text_box_credit_2 = tn.predict_text_one_level(text_group_char_credit_2, 0, model_char_subject_code_tn, model_char_academic_results_tn)
+            text_box_academic_results_2 = tn.predict_text_one_level(text_group_char_academic_results_2, 1, model_char_subject_code_tn, model_char_academic_results_tn)
+
+            # ลบโมเดลทั้งหมดและคืนหน่วยความจำ
+            del model_char_subject_code_tn, model_char_academic_results_tn
+            tf.keras.backend.clear_session()  # เคลียร์ session ของ TensorFlow
+            gc.collect()
+
+            # โหลดโมเดล
+            model_path_char_level_0 = f"{model_path}/char_level_0_model.h5"
+            model_path_char_level_1 = f"{model_path}/char_level_1_model.h5"
+            model_path_char_level_2 = f"{model_path}/char_level_2_model.h5"
+
+            model_char_level_0 = load_model(model_path_char_level_0)
+            model_char_level_1 = load_model(model_path_char_level_1)
+            model_char_level_2 = load_model(model_path_char_level_2)
+
+            # ทำนายตัวอักษรหลายระดับ
+            text_box_subject_name = tn.predict_text_multi_level(text_group_char_subject_name[:], model_char_level_0, model_char_level_1, model_char_level_2)
+            text_box_subject_name_2 = tn.predict_text_multi_level(text_group_char_subject_name_2[:], model_char_level_0, model_char_level_1, model_char_level_2)
+
+            # ลบโมเดลทั้งหมดและคืนหน่วยความจำ
+            del model_char_level_0, model_char_level_1, model_char_level_2
+            tf.keras.backend.clear_session()  # เคลียร์ session ของ TensorFlow
+            gc.collect()
+
+            
+            ## ข้อมูลนักศึกษา
+            text_stud_fh_images = tn.find_text_student_info_fh(student_info_fh_img)
+            text_stud_sh_images = tn.find_text_student_info_sh(student_info_sh_img)
+
+            indices_fh = [3, -2, -1]
+            indices_sh = [-3, -1]
+            student_name, field_of_study, field_of_work = [text_stud_fh_images[i] for i in indices_fh]
+            gpa, graduation_date = [text_stud_sh_images[i] for i in indices_sh]
+
+            # จับกลุ่มข้อความย่อย
+            text_group_student_name = tn.detect_sub_text_in_group_stud(student_name)
+            text_group_field_of_study = tn.detect_sub_text_in_group_stud(field_of_study)
+            text_group_field_of_work = tn.detect_sub_text_in_group_stud(field_of_work)
+
+            text_group_gpa = tn.detect_sub_text_in_group_stud(gpa)
+            text_group_graduation_date = tn.detect_sub_text_in_group_stud(graduation_date)
+
+            # จับตัวอักษณหลายระดับ
+            text_group_char_student_name = tn.detect_char_stud(text_group_student_name[3:])
+            text_group_char_field_of_study = tn.detect_char_stud(text_group_field_of_study[1:])
+            text_group_char_field_of_work = tn.detect_char_stud(text_group_field_of_work[1:])
+
+            text_group_char_gpa = tn.detect_char_stud(text_group_gpa[1:])
+            text_group_char_graduation_date = tn.detect_char_stud(text_group_graduation_date[1:])
+
+
+            # โหลดโมเดล
+            model_path_char_level_0 = f"{model_path}/char_level_0_model.h5"
+            model_path_char_level_1 = f"{model_path}/char_level_1_model.h5"
+            model_path_char_level_2 = f"{model_path}/char_level_2_model.h5"
+
+            model_char_level_0 = load_model(model_path_char_level_0)
+            model_char_level_1 = load_model(model_path_char_level_1)
+            model_char_level_2 = load_model(model_path_char_level_2)
+
+            # ทำนายตัวอักษรหลายระดับ
+            text_box_student_name = tn.predict_text_multi_level_stud(text_group_char_student_name[:], model_char_level_0, model_char_level_1, model_char_level_2)
+            text_box_field_of_study = tn.predict_text_multi_level_stud(text_group_char_field_of_study[:], model_char_level_0, model_char_level_1, model_char_level_2)
+            text_box_field_of_work = tn.predict_text_multi_level_stud(text_group_char_field_of_work[:], model_char_level_0, model_char_level_1, model_char_level_2)
+
+            text_box_gpa = tn.predict_text_multi_level_stud(text_group_char_gpa[:], model_char_level_0, model_char_level_1, model_char_level_2)
+            text_box_graduation_date = tn.predict_text_multi_level_stud(text_group_char_graduation_date[:], model_char_level_0, model_char_level_1, model_char_level_2)
+
+            # ลบโมเดลทั้งหมดและคืนหน่วยความจำ
+            del model_char_level_0, model_char_level_1, model_char_level_2
+            tf.keras.backend.clear_session()  # เคลียร์ session ของ TensorFlow
+            gc.collect()
+
+
+            
+            ## JSON
+            # ทำการรวม list
+            text_box_subject_code_all = text_box_subject_code + text_box_subject_code_2
+            text_box_subject_name_all = text_box_subject_name + text_box_subject_name_2
+            text_box_credit_all = text_box_credit + text_box_credit_2
+            text_box_academic_results_all = text_box_academic_results + text_box_academic_results_2
+
+            # ลบช่องว่างด้วย list comprehension
+            subject_codes = [scode.replace(" ", "") for scode in text_box_subject_code_all]
+            subject_names = [sname.strip() for sname in text_box_subject_name_all]
+            credits = [credit.replace(" ", "") for credit in text_box_credit_all] 
+            grades = [grade.replace(" ", "") for grade in text_box_academic_results_all]
+
+            combined_list = list(zip(subject_codes, subject_names, credits, grades))
+
+            student_name = text_box_student_name.strip()
+            field_of_study = text_box_field_of_study.replace(" ", "")
+            field_of_work = text_box_field_of_work.replace(" ", "")
+            gpa = text_box_gpa.replace(" ", "")
+            graduation_date = text_box_graduation_date.strip()
+
+            enrolled_subjects = []
+            for scode, sname, credit, grade in zip(subject_codes, subject_names, credits, grades):
+                enrolled_subjects.append({
+                "subject_code": scode,
+                "subject_name": sname,
+                "credit": credit,
+                "grade": grade
+            })
+                
+            # สร้างโครงสร้าง JSON ในรูปแบบของ dictionary
+            data = {
+                "student_info": {
+                    "fullname": student_name,
+                    "field_of_study": field_of_study,
+                    "field_of_work": field_of_work,
+                    "gpa": gpa,
+                    "graduation_date":graduation_date
+                },
+                "enrolled_subjects": enrolled_subjects
+            }
+
+            # แปลง Python dictionary เป็น JSON string
+            json_path = media_path / "transcript.json"
+            with json_path.open("w", encoding="utf-8") as json_file:
+                json.dump([data], json_file, indent=4, ensure_ascii=False)
+                
+            return render(request, 'technician.html', {
+                'saved_images': saved_images,
+                'fullname':student_name,
+                'field_of_study': field_of_study,
+                'field_of_work': field_of_work,
+                'gpa': gpa,
+                'graduation_date':graduation_date,               
+                'combined_list':combined_list,
+                'json_url': settings.MEDIA_URL + "transcript.json"
+            })
+            
+            
+    else:
+        return render(request, 'technician.html')
 
 def download_json(request):
     """ ให้ผู้ใช้ดาวน์โหลดไฟล์ JSON """
