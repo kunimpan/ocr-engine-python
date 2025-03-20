@@ -23,10 +23,9 @@ import gc
 print(pytesseract.get_tesseract_version())
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
-# Create your views here.
+
 def index(request):
     return render(request, 'index.html')
-
 
 def high_school_tesseract(request):
     if request.method == 'POST' and 'file_uploads' in request.FILES:
@@ -161,12 +160,12 @@ def high_school_tesseract(request):
             text_group_credit = hs_tsr.detect_sub_text_in_group(text_credit_images)
             text_group_academic_results = hs_tsr.detect_sub_text_in_group(text_academic_results_images)
 
-            text_group_subject_code_name_2 = detect_sub_text_in_group(text_subject_code_name_images_2)
+            text_group_subject_code_name_2 = hs_tsr.detect_sub_text_in_group(text_subject_code_name_images_2)
             text_group_subject_code_2, text_group_subject_name_2 = hs_tsr.separate_subject_code_and_name(text_group_subject_code_name_2)
             text_group_credit_2 = hs_tsr.detect_sub_text_in_group(text_credit_images_2)
             text_group_academic_results_2 = hs_tsr.detect_sub_text_in_group(text_academic_results_images_2)
 
-            text_group_subject_code_name_3 = detect_sub_text_in_group(text_subject_code_name_images_3)
+            text_group_subject_code_name_3 = hs_tsr.detect_sub_text_in_group(text_subject_code_name_images_3)
             text_group_subject_code_3, text_group_subject_name_3 = hs_tsr.separate_subject_code_and_name(text_group_subject_code_name_3)
             text_group_credit_3 = hs_tsr.detect_sub_text_in_group(text_credit_images_3)
             text_group_academic_results_3 = hs_tsr.detect_sub_text_in_group(text_academic_results_images_3)
@@ -293,6 +292,9 @@ def high_school_tesseract(request):
                 subject_names = [sname.strip() for sname in text_box_subject_name_all]
                 credits = [credit.replace(" ", "") for credit in text_box_credit_all] 
                 grades = [grade.replace(" ", "") for grade in text_box_academic_results_all]
+
+                subject_codes_new = [code[:7] for code in subject_codes]
+
                 
                 student_name = text_box_student_name.replace(" ", "")
                 student_lastname = text_box_student_lastname.replace(" ", "")
@@ -302,10 +304,10 @@ def high_school_tesseract(request):
                 sum_department_credits = [sum.replace(" ", "") for sum in text_box_sum_department_credits]
                 gpa = [gpa.replace(" ", "") for gpa in text_box_gpa]
             
-                combined_list = list(zip(subject_codes, subject_names, credits, grades))
+                combined_list = list(zip(subject_codes_new, subject_names, credits, grades))
 
                 enrolled_subjects = []
-                for scode, sname, credit, grade in zip(subject_codes, subject_names, credits, grades):
+                for scode, sname, credit, grade in zip(subject_codes_new, subject_names, credits, grades):
                     enrolled_subjects.append({
                         "subject_code": scode,
                         "subject_name": sname,
@@ -358,14 +360,17 @@ def high_school_tesseract(request):
                 subject_names = [sname.strip() for sname in text_box_subject_name_all]
                 credits = [credit.replace(" ", "") for credit in text_box_credit_all] 
                 grades = [grade.replace(" ", "") for grade in text_box_academic_results_all]
+
+                subject_codes_new = [code[:7] for code in subject_codes]
+
                 
                 student_name = text_box_student_name.replace(" ", "")
                 student_lastname = text_box_student_lastname.replace(" ", "")
 
-                combined_list = list(zip(subject_codes, subject_names, credits, grades))
+                combined_list = list(zip(subject_codes_new, subject_names, credits, grades))
 
                 enrolled_subjects = []
-                for scode, sname, credit, grade in zip(subject_codes, subject_names, credits, grades):
+                for scode, sname, credit, grade in zip(subject_codes_new, subject_names, credits, grades):
                     enrolled_subjects.append({
                         "subject_code": scode,
                         "subject_name": sname,
@@ -531,12 +536,12 @@ def high_school(request):
             text_group_credit = hs.detect_sub_text_in_group(text_credit_images)
             text_group_academic_results = hs.detect_sub_text_in_group(text_academic_results_images)
 
-            text_group_subject_code_name_2 = detect_sub_text_in_group(text_subject_code_name_images_2)
+            text_group_subject_code_name_2 = hs.detect_sub_text_in_group(text_subject_code_name_images_2)
             text_group_subject_code_2, text_group_subject_name_2 = hs.separate_subject_code_and_name(text_group_subject_code_name_2)
             text_group_credit_2 = hs.detect_sub_text_in_group(text_credit_images_2)
             text_group_academic_results_2 = hs.detect_sub_text_in_group(text_academic_results_images_2)
 
-            text_group_subject_code_name_3 = detect_sub_text_in_group(text_subject_code_name_images_3)
+            text_group_subject_code_name_3 = hs.detect_sub_text_in_group(text_subject_code_name_images_3)
             text_group_subject_code_3, text_group_subject_name_3 = hs.separate_subject_code_and_name(text_group_subject_code_name_3)
             text_group_credit_3 = hs.detect_sub_text_in_group(text_credit_images_3)
             text_group_academic_results_3 = hs.detect_sub_text_in_group(text_academic_results_images_3)
@@ -734,6 +739,8 @@ def high_school(request):
                 subject_names = [sname.strip() for sname in text_box_subject_name_all]
                 credits = [credit.replace(" ", "") for credit in text_box_credit_all] 
                 grades = [grade.replace(" ", "") for grade in text_box_academic_results_all]
+
+                subject_codes_new = [code[:7] for code in subject_codes]
                 
                 student_name = text_box_student_name.replace(" ", "")
                 student_lastname = text_box_student_lastname.replace(" ", "")
@@ -743,10 +750,10 @@ def high_school(request):
                 sum_department_credits = [sum.replace(" ", "") for sum in text_box_sum_department_credits]
                 gpa = [gpa.replace(" ", "") for gpa in text_box_gpa]
             
-                combined_list = list(zip(subject_codes, subject_names, credits, grades))
+                combined_list = list(zip(subject_codes_new, subject_names, credits, grades))
 
                 enrolled_subjects = []
-                for scode, sname, credit, grade in zip(subject_codes, subject_names, credits, grades):
+                for scode, sname, credit, grade in zip(subject_codes_new, subject_names, credits, grades):
                     enrolled_subjects.append({
                         "subject_code": scode,
                         "subject_name": sname,
@@ -798,14 +805,17 @@ def high_school(request):
                 subject_names = [sname.strip() for sname in text_box_subject_name_all]
                 credits = [credit.replace(" ", "") for credit in text_box_credit_all] 
                 grades = [grade.replace(" ", "") for grade in text_box_academic_results_all]
+
+                subject_codes_new = [code[:7] for code in subject_codes]
+
                 
                 student_name = text_box_student_name.replace(" ", "")
                 student_lastname = text_box_student_lastname.replace(" ", "")
 
-                combined_list = list(zip(subject_codes, subject_names, credits, grades))
+                combined_list = list(zip(subject_codes_new, subject_names, credits, grades))
 
                 enrolled_subjects = []
-                for scode, sname, credit, grade in zip(subject_codes, subject_names, credits, grades):
+                for scode, sname, credit, grade in zip(subject_codes_new, subject_names, credits, grades):
                     enrolled_subjects.append({
                         "subject_code": scode,
                         "subject_name": sname,

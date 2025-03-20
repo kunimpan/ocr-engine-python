@@ -46,37 +46,42 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
+              <!-- 
               <li class="nav-item">
                 <a class="nav-link active" href="/">🏠 หน้าแรก</a>
               </li>
+              -->
               <li class="nav-item">
-                <a class="nav-link" href="/technician">📄 อาชีวศึกษา</a>
+                <a class="nav-link active" href="/technician">📄 อาชีวศึกษา</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/technician_tesseract">📄 อาชีวศึกษา TSR</a>
+                <a class="nav-link active" href="/technician_tesseract">📄 อาชีวศึกษา TSR</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/high_school">📄 มัธยมศึกษา</a>
+                <a class="nav-link active" href="/high_school">📄 มัธยมศึกษา</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/high_school_tesseract">📄 มัธยมศึกษา TSR</a>
+                <a class="nav-link active" href="/high_school_tesseract">📄 มัธยมศึกษา TSR</a>
               </li>
+              <!-- 
               <li class="nav-item">
                 <a class="nav-link" href="/">ℹ️ เกี่ยวกับเรา</a>
               </li>
+            -->
             </ul>
           </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    
     <div class="container my-4">
         {% block content %}{% endblock %}
     </div>
 
     <!-- Footer -->
     <footer class="mt-4">
-        <p>&copy; 2025 OCR Transcript | Powered by Django & Bootstrap</p>
+        <p>&copy; 2025 OCR Transcript</p>
+        <!--<p>&copy; 2025 OCR Transcript | Powered by Django & Bootstrap</p>-->
     </footer>
 
     <!-- Bootstrap JavaScript -->

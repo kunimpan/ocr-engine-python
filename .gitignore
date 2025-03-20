@@ -34,3 +34,5 @@ data/raw_class_images/
 #data/processed_data
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
+
+data/test_images/for_test
