@@ -36,3 +36,4 @@ data/raw_class_images/
 .ipynb_checkpoints/
 
 data/test_images/for_test
+data/excel

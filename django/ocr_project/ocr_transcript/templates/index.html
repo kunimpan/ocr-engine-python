@@ -5,61 +5,102 @@
 {% endblock title %}
 
 {% block content %}
-    <h3 class="text-center mt-3">ระบบถอดข้อความจากใบทรานสคริปต์</h2>
-    
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile01">ใบทรานสคลิปต์</label>
-            <input type="file" class="form-control" id="inputGroupFile01" name="image">
-            <button class="btn btn-success" type="submit">อัพโหลดรูปภาพ</button>
+
+<div class="container mt-4">
+    <h3 class="text-center mt-3">ทดสอบ</h2>
+    <!-- Form Upload -->
+    <div class="card shadow p-3 mb-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="input-group">
+                <label class="input-group-text" for="inputGroupFile01">📎 ใบทรานสคริปต์</label>
+                <input type="file" class="form-control" name="files" multiple accept=".pdf,image/*">
+                <button class="btn btn-success" type="submit">📤 อัพโหลด</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- แสดงไฟล์รูปภาพที่อัปโหลด -->
+    {% if images %}
+    <div class="card shadow p-3 mb-4">
+        <h4 class="text-center">🖼️ ไฟล์รูปภาพที่อัปโหลด</h4>
+        <div class="d-flex flex-wrap justify-content-center">
+            {% for image in images %}
+            <div class="text-center m-3">
+                <!-- Thumbnail -->
+                <img src="data:image/png;base64,{{ image|safe }}" 
+                     alt="Uploaded Image" 
+                     class="img-fluid rounded shadow" 
+                     style="width: 150px; height: auto;">
+                
+                <!-- ปุ่มดูภาพขนาดเต็ม -->
+                <p class="mt-2">
+                    <button class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#imageModal{{ forloop.counter }}">
+                        🔍 ดูภาพขนาดเต็ม
+                    </button>
+                </p>
+            </div>
+
+            <!-- Modal แสดงภาพขนาดเต็ม -->
+            <div class="modal fade" id="imageModal{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">ภาพขนาดเต็ม</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="data:image/png;base64,{{ image|safe }}" 
+                                 alt="Full Size Image" 
+                                 class="img-fluid rounded shadow">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-    </form>
-
-    {% if uploaded_file_url %}
-        <p>อัปโหลดสำเร็จ: <a href="{{ uploaded_file_url }}">ดูภาพที่นี่</a></p>
-        <!-- <img src="{{ uploaded_file_url }}" alt="Uploaded Image"> -->
-        <a href="{% url 'download_json' %}" download>
-            <button class="btn btn-success mb-3">ดาวน์โหลด JSON</button>
-        </a>
-    {% endif %}
-
-
-    {% if student_name %}
-    <h4>ข้อมูลนักศึกษา</h4>
-    <div style="margin-left: 20px;">
-        <p style="margin-left: 20px;"><li><b>ชื่อ - นามสกุล : </b>{{student_name}}</li></p>
-        <p style="margin-left: 20px;"><li><b>สาขาวิชา : </b>{{field_of_study}}</li></p>
-        <p style="margin-left: 20px;"><li><b>สาขางาน : </b>{{field_of_work}}</li></p>
-        <p style="margin-left: 20px;"><li><b>ระดับคะแนนเฉลี่ยสะสม : </b>{{cgpa}}</li></p>
-        <p style="margin-left: 20px;"><li><b>สำเร็จการศึกษาเมื่อ : </b>{{graduation_date}}</li></p>
     </div>
     {% endif %}
-    
 
-    {% if student_name %}
-    <div style=>
-        <h4 style="text-align: center;">ตารางผลการเรียนรายวิชา</h4>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">รหัสวิชา</th>
-                    <th scope="col">ชื่อวิชา</th>
-                    <th scope="col">หน่วยกิต</th>
-                    <th scope="col">เกรดที่ได้</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for subject_code, subject_name, credit, academic_results in combined_list %}
-                <tr>
-                    <td>{{subject_code}}</td>
-                    <td>{{subject_name}}</td>
-                    <td>{{credit}}</td>
-                    <td>{{academic_results}}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Modal แจ้งเตือน error -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="errorModalLabel">แจ้งเตือน</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+              {% if error %}
+                  {% if error|length > 1 %}
+                      <ul>
+                      {% for err in error %}
+                          <li>{{ err }}</li>
+                      {% endfor %}
+                      </ul>
+                  {% else %}
+                      <p>{{ error.0 }}</p>
+                  {% endif %}
+              {% endif %}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+          </div>
+        </div>
     </div>
-    {% endif %}
+
+
+</div>
+<!-- Script Trigger Modal ถ้ามี error -->
+{% if error %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+    });
+</script>
+{% endif %}
 {% endblock content %}

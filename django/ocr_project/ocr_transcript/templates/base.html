@@ -9,9 +9,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
+
+    <!-- Bootstrap CSS 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS (ต้องการ Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     {% block title %}{% endblock title %}
 
@@ -46,11 +52,11 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-              <!-- 
+               
               <li class="nav-item">
                 <a class="nav-link active" href="/">🏠 หน้าแรก</a>
               </li>
-              -->
+              
               <li class="nav-item">
                 <a class="nav-link active" href="/technician">📄 อาชีวศึกษา</a>
               </li>
@@ -83,11 +89,6 @@
         <p>&copy; 2025 OCR Transcript</p>
         <!--<p>&copy; 2025 OCR Transcript | Powered by Django & Bootstrap</p>-->
     </footer>
-
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-YudlN9FTO50a6lF7rX8PjXkFadnFj4+3eFzjFBE5LOzvc90D5f1zoh1HdE9sFoJf"
-            crossorigin="anonymous"></script>
 
 </body>
 </html>

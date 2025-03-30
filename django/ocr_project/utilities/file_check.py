@@ -1,7 +1,4 @@
-import pytesseract
 import cv2
-from matplotlib import table
-import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 import magic
