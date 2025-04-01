@@ -14,41 +14,50 @@
             {% csrf_token %}
             <div class="input-group">
                 <label class="input-group-text" for="inputGroupFile01">📎 ใบทรานสคริปต์</label>
-                <input type="file" class="form-control" id="inputGroupFile01" name="file_uploads" multiple>
+                <input type="file" class="form-control" name="files" multiple accept=".pdf,image/*">
                 <button class="btn btn-success" type="submit">📤 อัพโหลด</button>
             </div>
         </form>
     </div>
 
-    <!-- Messages Alert -->
-    {% if messages %}
-        <div class="alert-container">
-            {% for message in messages %}
-                <div class="alert 
-                    {% if message.tags == 'success' %}alert-success
-                    {% elif message.tags == 'warning' %}alert-warning
-                    {% elif message.tags == 'error' %}alert-danger
-                    {% else %}alert-secondary
-                    {% endif %}" role="alert">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
     <!-- แสดงไฟล์รูปภาพที่อัปโหลด -->
-    {% if saved_images %}
+    {% if images %}
     <div class="card shadow p-3 mb-4">
         <h4 class="text-center">🖼️ ไฟล์รูปภาพที่อัปโหลด</h4>
         <div class="d-flex flex-wrap justify-content-center">
-            {% for image_url in saved_images %}
+            {% for image in images %}
             <div class="text-center m-3">
-                <a href="{{ image_url }}" target="_blank">
-                    <img src="{{ image_url }}" alt="Uploaded Image" class="img-fluid rounded shadow" style="width: 150px; height: auto;">
-                </a>
+                <!-- Thumbnail -->
+                <img src="data:image/png;base64,{{ image|safe }}" 
+                     alt="Uploaded Image" 
+                     class="img-fluid rounded shadow" 
+                     style="width: 150px; height: auto;">
+                
+                <!-- ปุ่มดูภาพขนาดเต็ม -->
                 <p class="mt-2">
-                    <a href="{{ image_url }}" target="_blank" class="btn btn-outline-primary btn-sm">🔍 ดูภาพขนาดเต็ม</a>
+                    <button class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#imageModal{{ forloop.counter }}">
+                        🔍 ดูภาพขนาดเต็ม
+                    </button>
                 </p>
+            </div>
+
+            <!-- Modal แสดงภาพขนาดเต็ม -->
+            <div class="modal fade" id="imageModal{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">ภาพขนาดเต็ม</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="data:image/png;base64,{{ image|safe }}" 
+                                 alt="Full Size Image" 
+                                 class="img-fluid rounded shadow">
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -70,9 +79,10 @@
         <h4 class="text-center">👨‍🎓 ข้อมูลนักศึกษา</h4>
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><b>ชื่อ - นามสกุล:</b> {{ fullname }}</li>
+            <li class="list-group-item"><b>เลขบัตรประจำตัวประชาชน:</b> {{ citizen_id }}</li>
             <li class="list-group-item"><b>สาขาวิชา:</b> {{ field_of_study }}</li>
             <li class="list-group-item"><b>สาขางาน:</b> {{ field_of_work }}</li>
-            <li class="list-group-item"><b>ผลการเรียนเฉลี่ยสะสม:</b> {{ gpa }}</li>
+            <li class="list-group-item"><b>ผลการเรียนเฉลี่ยสะสม:</b> {{ gpax }}</li>
             <li class="list-group-item"><b>วันที่จบการศึกษา:</b> {{ graduation_date }}</li>
         </ul>
     </div>
@@ -106,6 +116,127 @@
         </div>
     </div>
     {% endif %}
+
+
+    <!-- Modal แจ้งเตือน error -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="errorModalLabel">แจ้งเตือน</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+              {% if error %}
+                  {% if error|length > 1 %}
+                      <ul>
+                      {% for err in error %}
+                          <li>{{ err }}</li>
+                      {% endfor %}
+                      </ul>
+                  {% else %}
+                      <p>{{ error.0 }}</p>
+                  {% endif %}
+              {% endif %}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" aria-labelledby="loadingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">กำลังโหลด...</span>
+                    </div>
+                    <p>กำลังประมวลผล กรุณารอสักครู่...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">แจ้งเตือน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+                </div>
+                <div class="modal-body">
+                    {{ success_message }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Failed Modal -->
+    <div class="modal fade" id="failedModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="failedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="failedModalLabel">แจ้งเตือน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+                </div>
+                <div class="modal-body">
+                    {{ failed_message }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<!-- Script Trigger Modal ถ้ามี error -->
+{% if error %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+    });
+</script>
+{% endif %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("form");
+        if (form) {
+            form.addEventListener("submit", function() {
+                var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                loadingModal.show();
+            });
+        }
+    });
+</script>
+
+{% if success_message %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+      successModal.show();
+  });
+</script>
+{% endif %}
+
+{% if failed_message %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var successModal = new bootstrap.Modal(document.getElementById('failedModal'));
+      successModal.show();
+  });
+</script>
+{% endif %}
 
 </div> <!-- container -->
 {% endblock content %}

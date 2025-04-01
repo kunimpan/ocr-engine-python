@@ -1023,12 +1023,22 @@ def find_text_student_info_sh(student_info_sh_img):
 
     return text_group_stud_sh[3:]
 
-def detect_sub_text_in_group_stud(binary_image):
+def detect_sub_text_in_group_stud(binary_image, mode=0):
     
     text_group = []
-
-    kernel = np.ones((3, 3), np.uint8)
-    dummy_image = cv2.dilate(binary_image, kernel, iterations=2)
+    
+    if (mode == 1):
+        kernel = np.ones((5, 16), np.uint8)
+        dummy_image = cv2.dilate(binary_image, kernel, iterations=1)
+        #dummy_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel, iterations=1)
+    elif (mode == 2):
+        kernel = np.ones((5, 6), np.uint8)
+        dummy_image = cv2.dilate(binary_image, kernel, iterations=1)
+        #dummy_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel, iterations=1)
+    else:
+        kernel = np.ones((5, 6), np.uint8)
+        dummy_image = cv2.dilate(binary_image, kernel, iterations=1)
+        #dummy_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel, iterations=1)
 
     # ใช้ Connected Component Analysis
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(dummy_image, connectivity=8)
@@ -1382,3 +1392,148 @@ def predict_text_multi_level_stud(text_group_char, model_char_level_0, model_cha
         
     print("ประมวลผลเสร็จสิ้น")
     return text_result_post
+
+# เพิ่ม
+def detect_one_level_of_char_stud(text_group):
+    debug = False
+    char_images = []
+
+    for idx_s, sub_text in enumerate(text_group):
+
+        if debug == True:
+            plt.figure(figsize=(3, 3))
+            plt.imshow(sub_text, cmap="gray")
+            plt.title(f"sub text:{idx_s+1}")
+            plt.show()
+            
+        #skeleton = cv2.ximgproc.thinning(sub_text, thinningType=cv2.ximgproc.THINNING_ZHANGSUEN)
+        skeleton_guohall = cv2.ximgproc.thinning(sub_text, thinningType=cv2.ximgproc.THINNING_GUOHALL)
+
+        if debug == True:
+            plt.figure(figsize=(3, 3))
+            plt.imshow(skeleton_guohall, cmap="gray")
+            plt.title(f"skeleton, sub text:{idx_s+1}")
+            plt.show()
+            
+            
+        #kernel_open = np.ones((2, 2), np.uint8)
+        kernel_dummy = np.ones((2, 2), np.uint8)
+        #opening = cv2.morphologyEx(skeleton, cv2.MORPH_OPEN, kernel=kernel_open, iterations=2)
+        #closing = cv2.morphologyEx(skeleton, cv2.MORPH_CLOSE, kernel=kernel_open, iterations=2)
+        dummy_image = cv2.dilate(skeleton_guohall, kernel_dummy, iterations=1)
+
+        if debug == True:
+            plt.figure(figsize=(3, 3))
+            plt.imshow(dummy_image, cmap="gray")
+            plt.title(f"dummy_image, sub text:{idx_s+1}")
+            plt.show()
+            
+            
+        rgb_image = cv2.cvtColor(sub_text.copy(), cv2.COLOR_GRAY2RGB)
+
+        contours, hierarchy = cv2.findContours(dummy_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        sorted_contours = sorted(contours, key=lambda cnt: cv2.boundingRect(cnt)[0])
+
+        
+        for idx_c, cnt in enumerate(sorted_contours):
+
+            x, y, w, h = cv2.boundingRect(cnt)
+            contour_area = cv2.contourArea(cnt)
+
+            mask = np.zeros(sub_text.shape[:2], dtype=np.uint8)
+            cv2.drawContours(mask, [cnt], -1, 255, -1)
+
+            kernel_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))  # ปรับขนาด kernel ตามต้องการ
+            dilated_mask = cv2.dilate(mask, kernel_mask, iterations=1)
+
+            # ใช้ mask กับภาพต้นฉบับ เพื่อดึงเฉพาะส่วนภายใน contour
+            char_result = cv2.bitwise_and(sub_text, sub_text, mask=dilated_mask)
+
+            contours_char, hierarchy_char = cv2.findContours(char_result, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            largest_contour = max(contours_char, key=cv2.contourArea)
+
+            x, y, w, h = cv2.boundingRect(largest_contour)
+            area = int(cv2.contourArea(largest_contour))
+            crop_img = char_result[y:y+h, x:x+w]
+            char_images.append(crop_img)
+                
+            if debug == True:
+                plt.figure(figsize=(2, 2))
+                plt.imshow(crop_img, cmap="gray")
+                plt.title(f"crop_img, sub text:{idx_s+1}, char:{idx_c+1}")
+                plt.show()
+            #print(f"Contour #{idx_c}: bounding box = (x={x}, y={y}, w={w}, h={h}, area={contour_area})")
+    return char_images
+
+# เพื่ม
+def predict_text_one_level_stud(text_group_char, char_model, model_char_subject_code_tn, model_char_academic_results_tn):
+    models_one_level = {
+        0: model_char_subject_code_tn,
+        1: model_char_academic_results_tn,
+    }
+    
+    char_subject_code_tn = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-',
+    ]
+
+    char_academic_results_tn = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'ก', 'ข', 'ถ', 'ท', 'น', 'ป', 'ผ', 'ม', 'ร', 'ล', 'ส', '.'
+    ]
+    
+    char_labels = {
+        0: char_subject_code_tn,
+        1: char_academic_results_tn,
+    }
+    
+    # กำหนดขนาด Input ของโมเดล
+    input_size = 32  # ขนาด 32x32
+    text_block = ""
+
+    for idx_c, char in enumerate(text_group_char):
+
+ 
+        if char is None:
+            print(f"Character image {idx_c} is None.")
+            continue  # ข้ามภาพนี้
+        else:
+            # เพิ่ม Padding และปรับขนาดภาพ
+            padded_img = resize_with_min_padding(char, input_size, min_padding=1)
+                
+            # Normalization (เปลี่ยนค่าพิกเซลให้อยู่ในช่วง [0, 1])
+            normalized_img = padded_img / 255.0
+
+            if len(normalized_img.shape) == 2:  # หากภาพเป็น Grayscale (2D)
+                normalized_img = np.expand_dims(normalized_img, axis=-1)
+                processed_image = np.expand_dims(normalized_img, axis=0)  # เพิ่ม Batch Dimension
+
+            if char_model in models_one_level:
+                prediction = models_one_level[char_model].predict(processed_image)
+                predicted_class = np.argmax(prediction)
+                confidence_score = np.max(prediction)
+
+                class_char = char_labels[char_model]
+                predicted_letter = class_char[predicted_class]
+                text_block += predicted_letter
+
+    print("ประมวลผลเสร็จสิ้น")
+    
+    return text_block
+
+## หน้าหลัง
+def find_table(binary_img, denoised, dummy):
+    
+    # แยกตาราง
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(dummy, connectivity=8)
+    areas = [stat[4] for stat in stats]  # ดึงค่า area
+    sorted_areas = sorted(areas, reverse=True)  # เรียงลำดับจากมากไปน้อย
+    second_max_area = sorted_areas[1]  # ค่าอันดับ 2
+    second_max_area_index = areas.index(second_max_area)  # หาตำแหน่งในลิสต์เดิม
+    table_position = stats[second_max_area_index]
+    x, y, w, h, area = table_position
+
+    table_img = binary_img[y:y+h, x:x+w]
+    table_dummy_img = dummy[y:y+h, x:x+w]
+    table_original_img = denoised[y:y+h, x:x+w]
+
+    return table_img, table_dummy_img, table_original_img

@@ -528,6 +528,36 @@ def detect_sub_text_in_group_stud(binary_image):
 
     return text_group
 
+def detect_sub_text_in_group_stud(binary_image, mode=0):
+    
+    text_group = []
+    
+    if (mode == 1):
+        kernel = np.ones((5, 16), np.uint8)
+        dummy_image = cv2.dilate(binary_image, kernel, iterations=1)
+        #dummy_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel, iterations=1)
+    elif (mode == 2):
+        kernel = np.ones((5, 6), np.uint8)
+        dummy_image = cv2.dilate(binary_image, kernel, iterations=1)
+        #dummy_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel, iterations=1)
+    else:
+        kernel = np.ones((5, 6), np.uint8)
+        dummy_image = cv2.dilate(binary_image, kernel, iterations=1)
+        #dummy_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    # ใช้ Connected Component Analysis
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(dummy_image, connectivity=8)
+    word_stats = stats[1:] # ข้าม Background (index 0)
+    sorted_indices = np.argsort(word_stats[:, 0]) # จัดเรียงตามค่า x (คอลัมน์ที่ 0)
+    sorted_stats = word_stats[sorted_indices]
+
+    for idx, stats in enumerate(sorted_stats):
+        x, y, w, h, area = stats
+        cluster_img = binary_image[y:y+h, x:x+w]
+        text_group.append(cluster_img)
+
+    return text_group
+
 def predict_text_stud(text_group, mode=0):
     
     custom_config = r'--oem 3 --psm 7'
@@ -544,3 +574,21 @@ def predict_text_stud(text_group, mode=0):
         text_cleaned = sub_text_group.replace("\n", "")  # ลบ \n ออก
 
     return text_cleaned
+
+## หน้าหลัง
+def find_table(binary_img, denoised, dummy):
+    
+    # แยกตาราง
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(dummy, connectivity=8)
+    areas = [stat[4] for stat in stats]  # ดึงค่า area
+    sorted_areas = sorted(areas, reverse=True)  # เรียงลำดับจากมากไปน้อย
+    second_max_area = sorted_areas[1]  # ค่าอันดับ 2
+    second_max_area_index = areas.index(second_max_area)  # หาตำแหน่งในลิสต์เดิม
+    table_position = stats[second_max_area_index]
+    x, y, w, h, area = table_position
+
+    table_img = binary_img[y:y+h, x:x+w]
+    table_dummy_img = dummy[y:y+h, x:x+w]
+    table_original_img = denoised[y:y+h, x:x+w]
+
+    return table_img, table_dummy_img, table_original_img

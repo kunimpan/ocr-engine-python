@@ -37,3 +37,6 @@ data/raw_class_images/
 
 data/test_images/for_test
 data/excel
+
+django/ocr_project/media
+
