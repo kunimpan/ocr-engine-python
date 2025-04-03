@@ -13,8 +13,10 @@
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="input-group">
-                <label class="input-group-text" for="inputGroupFile01">📎 ใบทรานสคริปต์</label>
-                <input type="file" class="form-control" name="files" multiple accept=".pdf,image/*">
+                <label class="input-group-text" for="inputGroupFile01">📎 หน้าแรก/PDF 2 หน้า</label>
+                <input type="file" class="form-control" name="files" accept=".pdf,image/*">
+                <label class="input-group-text" for="inputGroupFile01">📎 หน้าหลัง</label>
+                <input type="file" class="form-control" name="files_2" accept=".pdf,image/*">
                 <button class="btn btn-success" type="submit">📤 อัพโหลด</button>
             </div>
         </form>
@@ -238,5 +240,5 @@
 </script>
 {% endif %}
 
-</div> <!-- container -->
+<!-- container -->
 {% endblock content %}

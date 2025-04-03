@@ -593,7 +593,6 @@ def high_school(request):
             text_group_char_academic_results_3 = hs.detect_one_level_of_char(text_group_academic_results_3[:])
 
 
-            
             # โหลดโมเดล ตัวอักษร 1 ระดับ
             model_path = Path("C:/Users/Impan/Documents/ocr-engine-python/models")
             model_path_char_subject_code_hs = f"{model_path}/char_subject_code_hs_model.h5"

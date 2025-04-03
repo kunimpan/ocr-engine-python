@@ -1466,14 +1466,19 @@ def detect_one_level_of_char_stud(text_group):
     return char_images
 
 # เพื่ม
-def predict_text_one_level_stud(text_group_char, char_model, model_char_subject_code_tn, model_char_academic_results_tn):
+def predict_text_one_level_stud(text_group_char, char_model, model_char_subject_code_tn, model_char_credit, model_char_academic_results_tn):
     models_one_level = {
         0: model_char_subject_code_tn,
-        1: model_char_academic_results_tn,
+        1: model_char_credit,
+        2: model_char_academic_results_tn,
     }
     
     char_subject_code_tn = [
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-',
+    ]
+    
+    char_credit = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
     ]
 
     char_academic_results_tn = [
@@ -1483,7 +1488,8 @@ def predict_text_one_level_stud(text_group_char, char_model, model_char_subject_
     
     char_labels = {
         0: char_subject_code_tn,
-        1: char_academic_results_tn,
+        1: char_credit,
+        2: char_academic_results_tn,
     }
     
     # กำหนดขนาด Input ของโมเดล
