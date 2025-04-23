@@ -19,24 +19,18 @@ Thumbs.db
 
 # Ignore dataset
 dataset/
-dataset_demo/
-dataset_demo2/
-dataset2
 font/
+data/excel
 data/raw_images/
-#data/test_images/
 data/output_images/
-data/test_images/transcript
-data/test_images/processed_images
-data/test_images/research
-data/test_images/scan
+data/test_images/
 data/raw_class_images/
-#data/processed_data
+
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
 
-data/test_images/for_test
-data/excel
+
+
 
 django/ocr_project/media
 

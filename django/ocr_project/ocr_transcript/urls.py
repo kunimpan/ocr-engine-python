@@ -5,7 +5,8 @@ from ocr_transcript import views
 #from .views import display_image, download_json
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    #path('', views.index, name='index'),
+    path('', views.technician, name='technician'),
     path('technician/', views.technician, name='technician'),
     path('high_school_tesseract/', views.high_school_tesseract, name='high_school_tesseract'),
     path('technician_tesseract/', views.technician_tesseract, name='technician_tesseract'),

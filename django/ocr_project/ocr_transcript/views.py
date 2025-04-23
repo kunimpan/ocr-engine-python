@@ -28,39 +28,8 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tess
 
 
 def index(request):
-    context = {}
-    if request.method == "POST":
-        uploaded_files = request.FILES.getlist('files')
-        errors = []
-        
-        # ตรวจสอบจำนวนไฟล์
-        if len(uploaded_files) == 0:
-            errors.append("กรุณาเลือกไฟล์ก่อนอัพโหลด")
-        elif len(uploaded_files) > 2:
-            errors.append("กรุณาอัพโหลดไฟล์ไม่เกิน 2 ไฟล์")
-
-        output_images = []
-
-        # ประมวลผลไฟล์ เฉพาะกรณีที่ยังไม่มี error ด้านจำนวนไฟล์
-        if not errors:
-            for file in uploaded_files:
-                try:
-                    images = process_file(file)
-                    output_images.extend(images)
-                except Exception as e:
-                    errors.append(f"เกิดข้อผิดพลาดในการประมวลผลไฟล์ {file.name}: {str(e)}")
-        
-        if errors:
-            # ถ้ามี error ใด ๆ ส่งไปแสดงใน template
-            context['error'] = errors
-        else:
-            # ถ้าไม่มี error ใด ๆ ก็แปลงภาพทั้งหมดเป็น Base64 แล้วส่งไปแสดง
-            image_data_list = [image_to_base64(img) for img in output_images]
-            context['images'] = image_data_list
-        
-        return render(request, "index.html", context)
-            
-    return render(request, 'index.html')
+    return render(request, 'technician.html')
+    #return render(request, 'index.html')
 
 def high_school_tesseract(request):
     context = {}
@@ -806,7 +775,7 @@ def high_school(request):
                         with json_path.open("w", encoding="utf-8") as json_file:
                             json.dump([data], json_file, indent=4, ensure_ascii=False)
                 
-                        return render(request, 'high_school_tesseract.html', {
+                        return render(request, 'high_school.html', {
                             'success_message': "ประมวลผลสำเร็จ",
                             'images':image_data_list,
                             'student_name':student_name,
@@ -836,7 +805,7 @@ def high_school(request):
                         with json_path.open("w", encoding="utf-8") as json_file:
                             json.dump([data], json_file, indent=4, ensure_ascii=False)
                             
-                        return render(request, 'high_school_tesseract.html', {
+                        return render(request, 'high_school.html', {
                             'success_message': "ประมวลผลสำเร็จ",
                             'images':image_data_list,
                             'student_name':student_name,
