@@ -1,0 +1,10 @@
+Django==4.2.18
+numpy==1.26.4
+opencv-python
+opencv-contrib-python
+pandas==2.2.2
+pdf2image==1.17.0
+pillow==11.0.0
+scikit-learn
+tensorflow
+python-magic
