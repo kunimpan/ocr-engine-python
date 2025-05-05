@@ -5,7 +5,6 @@ from django.core.files.storage import FileSystemStorage
 from PIL import Image
 from pathlib import Path
 import cv2
-import matplotlib.pyplot as plt
 import pytesseract
 import numpy as np
 import json
@@ -24,7 +23,7 @@ import traceback
 from tensorflow.keras import backend as K
 
 print(pytesseract.get_tesseract_version())
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
 
 
 def index(request):
@@ -77,8 +76,8 @@ def high_school_tesseract(request):
             
             
             try:
-                output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_TSR_DJ/front")
-                output_folder.mkdir(exist_ok=True)
+                
+                
                 
                 # เมื่อมีแค่ด้านหน้า
                 if len(output_images) >= 1:
@@ -103,27 +102,10 @@ def high_school_tesseract(request):
                     kernel = np.ones((3, 3), np.uint8)
                     f_dilated = cv2.dilate(f_binary_gaussian, kernel, iterations=1)
                     f_closed_dummy = cv2.morphologyEx(f_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
-
-                    cv2.imwrite(f"{output_folder}/img_cv.png", f_img_cv)
-                    cv2.imwrite(f"{output_folder}/denoised.png", f_denoised)
-                    cv2.imwrite(f"{output_folder}/gray.png", f_gray_img)
-                    cv2.imwrite(f"{output_folder}/binary_g.png", f_binary_gaussian)
-                    cv2.imwrite(f"{output_folder}/dilated.png", f_dilated)
-                    cv2.imwrite(f"{output_folder}/closed_dummy.png", f_closed_dummy)
                     
                     table_img, table_dummy_img, table_original_img, student_info_img, student_info_fh_img, student_info_sh_img = hs_tsr.split_grade_table_and_students(f_binary_gaussian, f_denoised, f_dilated)
                     table_persective_img, table_original_persective_img, table_dummy_persective_img = hs_tsr.persective_transformation(f_binary_gaussian, f_denoised, f_dilated)
-                    
-                    cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-                    cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
-                    cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
-                    cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
-                    cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
-
-                    cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
+                
                     
                     # หา column ของตาราง
                     cell_column_images = hs_tsr.find_table_columns(table_dummy_persective_img, table_persective_img)
@@ -153,18 +135,7 @@ def high_school_tesseract(request):
                     text_academic_results_images_3, calculate_line_stats_3, academic_results_img_3 = hs_tsr.detect_text_in_cell(cell_academic_results_img_3, 1)
                     text_subject_code_name_images_3, subject_code_name_img_3 = hs_tsr.detect_text_in_cell(cell_subject_code_name_img_3, 2, calculate_line_stats_3)
                     text_credit_images_3, credit_img_3 = hs_tsr.detect_text_in_cell(cell_credit_img_3, 2, calculate_line_stats_3)
-                    
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results.jpg", academic_results_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_name.jpg", subject_code_name_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit.jpg", credit_img)
-
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_2.jpg", academic_results_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_name_2.jpg", subject_code_name_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_2.jpg", credit_img_2)
-
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_3.jpg", academic_results_img_3)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_name_3.jpg", subject_code_name_img_3)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_3.jpg", credit_img_3)
+                
                     
                     # จับข้อความย่อยในกลุ่มข้อความ
                     text_group_subject_code_name = hs_tsr.detect_sub_text_in_group(text_subject_code_name_images)
@@ -214,8 +185,8 @@ def high_school_tesseract(request):
                     
                     # มีด้านหลัง
                     if len(output_images) == 2:
-                        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_TSR_DJ/back")
-                        output_folder.mkdir(exist_ok=True)
+                        
+                        
                         
                         b_image = output_images[1]
       
@@ -240,23 +211,9 @@ def high_school_tesseract(request):
                         b_dilated = cv2.dilate(b_binary_gaussian, kernel, iterations=1)
                         b_closed_dummy = cv2.morphologyEx(b_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
 
-                        cv2.imwrite(f"{output_folder}/img_cv.png", b_img_cv)
-                        cv2.imwrite(f"{output_folder}/denoised.png", b_denoised)
-                        cv2.imwrite(f"{output_folder}/gray.png", b_gray_img)
-                        cv2.imwrite(f"{output_folder}/binary_g.png", b_binary_gaussian)
-                        cv2.imwrite(f"{output_folder}/dilated.png", b_dilated)
-                        cv2.imwrite(f"{output_folder}/closed_dummy.png", b_closed_dummy)
-
                         ## หาตาราง
                         table_img, table_dummy_img, table_original_im = hs_tsr.fine_table(b_binary_gaussian, b_denoised, b_dilated)
                         table_persective_img, table_original_persective_img, table_dummy_persective_img = hs_tsr.persective_transformation(b_binary_gaussian, b_denoised, b_dilated)
-
-                        cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-
-                        cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
 
                         # หา column ของตาราง
                         cell_column_images, cell_column_dummy_images = hs_tsr.find_table_columns_b(table_dummy_persective_img, table_persective_img)
@@ -331,6 +288,7 @@ def high_school_tesseract(request):
                         }
                     
                         media_path = Path(settings.MEDIA_ROOT)  # ใช้ pathlib.Path
+                        media_path.mkdir(parents=True, exist_ok=True)
                         
                         # แปลง Python dictionary เป็น JSON string
                         json_path = media_path / "transcript.json"
@@ -441,8 +399,8 @@ def high_school(request):
             
             
             try:
-                output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_DJ/front")
-                output_folder.mkdir(exist_ok=True)
+                
+                
                 
                 # เมื่อมีแค่ด้านหน้า
                 if len(output_images) >= 1:
@@ -467,27 +425,9 @@ def high_school(request):
                     kernel = np.ones((3, 3), np.uint8)
                     f_dilated = cv2.dilate(f_binary_gaussian, kernel, iterations=1)
                     f_closed_dummy = cv2.morphologyEx(f_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
-
-                    cv2.imwrite(f"{output_folder}/img_cv.png", f_img_cv)
-                    cv2.imwrite(f"{output_folder}/denoised.png", f_denoised)
-                    cv2.imwrite(f"{output_folder}/gray.png", f_gray_img)
-                    cv2.imwrite(f"{output_folder}/binary_g.png", f_binary_gaussian)
-                    cv2.imwrite(f"{output_folder}/dilated.png", f_dilated)
-                    cv2.imwrite(f"{output_folder}/closed_dummy.png", f_closed_dummy)
                     
                     table_img, table_dummy_img, table_original_img, student_info_img, student_info_fh_img, student_info_sh_img = hs.split_grade_table_and_students(f_binary_gaussian, f_denoised, f_dilated)
                     table_persective_img, table_original_persective_img, table_dummy_persective_img = hs.persective_transformation(f_binary_gaussian, f_denoised, f_dilated)
-                    
-                    cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-                    cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
-                    cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
-                    cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
-                    cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
-
-                    cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
                     
                     # หา column ของตาราง
                     cell_column_images = hs.find_table_columns(table_dummy_persective_img, table_persective_img)
@@ -517,18 +457,6 @@ def high_school(request):
                     text_academic_results_images_3, calculate_line_stats_3, academic_results_img_3 = hs.detect_text_in_cell(cell_academic_results_img_3, 1)
                     text_subject_code_name_images_3, subject_code_name_img_3 = hs.detect_text_in_cell(cell_subject_code_name_img_3, 2, calculate_line_stats_3)
                     text_credit_images_3, credit_img_3 = hs.detect_text_in_cell(cell_credit_img_3, 2, calculate_line_stats_3)
-                    
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results.jpg", academic_results_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_name.jpg", subject_code_name_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit.jpg", credit_img)
-
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_2.jpg", academic_results_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_name_2.jpg", subject_code_name_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_2.jpg", credit_img_2)
-
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_3.jpg", academic_results_img_3)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_name_3.jpg", subject_code_name_img_3)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_3.jpg", credit_img_3)
                     
                     # จับข้อความย่อยในกลุ่มข้อความ
                     text_group_subject_code_name = hs.detect_sub_text_in_group(text_subject_code_name_images)
@@ -566,7 +494,7 @@ def high_school(request):
                     
                     # โหลดโมเดลตัวอักษร
                     #model_path = Path("C:/Users/Impan/Documents/ocr-engine-python/models")
-                    model_path = Path("../../models")
+                    model_path = Path("models")
                     model_path_char_subject_code_hs = f"{model_path}/char_subject_code_hs_model.h5"
                     model_path_char_credit = f"{model_path}/char_credit_model.h5"
                     model_path_char_academic_results_hs = f"{model_path}/char_academic_results_hs_model.h5"
@@ -599,24 +527,6 @@ def high_school(request):
                     text_box_subject_name_3 = hs.predict_text_multi_level(text_group_char_subject_name_3[:], model_char_level_0, model_char_level_1, model_char_level_2)
                     
                     
-                    '''
-                    # ทำนาย
-                    text_box_subject_code = hs_tsr.predict_text(text_group_subject_code, 1)
-                    text_box_subject_name = hs_tsr.predict_text(text_group_subject_name, 2)
-                    text_box_credit = hs_tsr.predict_text(text_group_credit, 3)
-                    text_box_academic_results = hs_tsr.predict_text(text_group_academic_results, 4)
-
-                    text_box_subject_code_2 = hs_tsr.predict_text(text_group_subject_code_2, 1)
-                    text_box_subject_name_2 = hs_tsr.predict_text(text_group_subject_name_2, 2)
-                    text_box_credit_2 = hs_tsr.predict_text(text_group_credit_2, 3)
-                    text_box_academic_results_2 = hs_tsr.predict_text(text_group_academic_results_2, 4)
-
-                    text_box_subject_code_3 = hs_tsr.predict_text(text_group_subject_code_3, 1)
-                    text_box_subject_name_3 = hs_tsr.predict_text(text_group_subject_name_3, 2)
-                    text_box_credit_3 = hs_tsr.predict_text(text_group_credit_3, 3)
-                    text_box_academic_results_3 = hs_tsr.predict_text(text_group_academic_results_3, 4)
-                    '''
-                    
                     ## ข้อมูลนักศึกษา
                     # หาชื่อกับนามสกุล
                     name_coordinate, lastname_coordinate = hs_tsr.find_text_student_info_fh(student_info_fh_img)
@@ -633,8 +543,8 @@ def high_school(request):
                     
                     # มีด้านหลัง
                     if len(output_images) == 2:
-                        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_DJ/back")
-                        output_folder.mkdir(exist_ok=True)
+                        
+                        
                         
                         b_image = output_images[1]
       
@@ -659,23 +569,9 @@ def high_school(request):
                         b_dilated = cv2.dilate(b_binary_gaussian, kernel, iterations=1)
                         b_closed_dummy = cv2.morphologyEx(b_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
 
-                        cv2.imwrite(f"{output_folder}/img_cv.png", b_img_cv)
-                        cv2.imwrite(f"{output_folder}/denoised.png", b_denoised)
-                        cv2.imwrite(f"{output_folder}/gray.png", b_gray_img)
-                        cv2.imwrite(f"{output_folder}/binary_g.png", b_binary_gaussian)
-                        cv2.imwrite(f"{output_folder}/dilated.png", b_dilated)
-                        cv2.imwrite(f"{output_folder}/closed_dummy.png", b_closed_dummy)
-
                         ## หาตาราง
                         table_img, table_dummy_img, table_original_im = hs_tsr.fine_table(b_binary_gaussian, b_denoised, b_dilated)
                         table_persective_img, table_original_persective_img, table_dummy_persective_img = hs_tsr.persective_transformation(b_binary_gaussian, b_denoised, b_dilated)
-
-                        cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-
-                        cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
 
                         # หา column ของตาราง
                         cell_column_images, cell_column_dummy_images = hs_tsr.find_table_columns_b(table_dummy_persective_img, table_persective_img)
@@ -705,14 +601,6 @@ def high_school(request):
                         text_box_department_academic_results = hs.predict_text_one_level_b(text_group_char_department_academic_results, 1, model_char_credit)
                         text_box_sum_department_credits = hs.predict_text_one_level_b(text_group_char_sum_department_credits, 1, model_char_credit)
                         text_box_gpa = hs.predict_text_one_level_b(text_group_char_gpa, 1, model_char_credit)
-                        
-                        '''
-                        ## ทำนาย
-                        text_box_department_credits = hs_tsr.predict_text_subject_group(texts_department_credits)
-                        text_box_department_academic_results = hs_tsr.predict_text_subject_group(texts_department_academic_results)
-                        text_box_sum_department_credits = hs_tsr.predict_text_subject_group(texts_sum_department_credits)
-                        text_box_gpa = hs_tsr.predict_text_subject_group(texts_gpa)
-                        '''
                         
                         department_credits = [departcredit.replace(" ", "") for departcredit in text_box_department_credits]
                         department_academic_results = [ac.replace(" ", "") for ac in text_box_department_academic_results]
@@ -769,6 +657,7 @@ def high_school(request):
                         }
                     
                         media_path = Path(settings.MEDIA_ROOT)  # ใช้ pathlib.Path
+                        media_path.mkdir(parents=True, exist_ok=True)
                         
                         # แปลง Python dictionary เป็น JSON string
                         json_path = media_path / "transcript.json"
@@ -876,8 +765,8 @@ def technician_tesseract(request):
             context['images'] = image_data_list
             
             try:
-                output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_TSR_DJ")
-                output_folder.mkdir(exist_ok=True)
+                
+                
                 
                 # เมื่อมีแค่ด้านหน้า
                 if len(output_images) >= 1:
@@ -902,28 +791,10 @@ def technician_tesseract(request):
                     kernel = np.ones((3, 3), np.uint8)
                     f_dilated = cv2.dilate(f_binary_gaussian, kernel, iterations=1)
                     f_closed_dummy = cv2.morphologyEx(f_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
-
-                    cv2.imwrite(f"{output_folder}/img_cv.png", f_img_cv)
-                    cv2.imwrite(f"{output_folder}/denoised.png", f_denoised)
-                    cv2.imwrite(f"{output_folder}/gray.png", f_gray_img)
-                    cv2.imwrite(f"{output_folder}/binary_g.png", f_binary_gaussian)
-                    cv2.imwrite(f"{output_folder}/dilated.png", f_dilated)
-                    cv2.imwrite(f"{output_folder}/closed_dummy.png", f_closed_dummy)
                     
                     # แยกตารางเกรดกับข้อมูลนักศึกษา
                     table_img, table_dummy_img, table_original_img, student_info_img, student_info_fh_img, student_info_sh_img = tn_tsr.split_grade_table_and_students(f_binary_gaussian, f_denoised, f_dilated)
                     table_persective_img, table_original_persective_img, table_dummy_persective_img = tn_tsr.persective_transformation(f_binary_gaussian, f_denoised, f_dilated)
-                    
-                    cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-                    cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
-                    cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
-                    cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
-                    cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
-
-                    cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
 
                     cell_images = tn_tsr.find_table_columns_rows(table_dummy_persective_img, table_persective_img)
 
@@ -948,15 +819,6 @@ def technician_tesseract(request):
                     text_subject_name_images_2, subject_name_img_2 = tn_tsr.detect_text_group_in_cell(cell_subject_name_img_2, 2, calculate_line_stats_2)
                     text_credit_images_2, credit_img_2 = tn_tsr.detect_text_group_in_cell(cell_credit_img_2, 2, calculate_line_stats_2)
                     text_academic_results_images_2, academic_results_img_2 = tn_tsr.detect_text_group_in_cell(cell_academic_results_img_2, 2, calculate_line_stats_2)
-
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img.jpg", subject_code_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img.jpg", subject_name_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img.jpg", credit_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img.jpg", academic_results_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_2.jpg", subject_code_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_2.jpg", subject_name_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_2.jpg", credit_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_2.jpg", academic_results_img_2)
 
                     # จับข้อความย่อยในกลุ่มข้อความของ cell ตาราง
                     text_group_subject_code = tn_tsr.detect_sub_text_in_group(text_subject_code_images)
@@ -1008,8 +870,8 @@ def technician_tesseract(request):
                     
                     # มีด้านหลัง
                     if len(output_images) == 2:
-                        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_TSR_DJ/back")
-                        output_folder.mkdir(exist_ok=True)
+                        
+                        
                         
                         b_image = output_images[1]
                         
@@ -1034,24 +896,24 @@ def technician_tesseract(request):
                         b_dilated = cv2.dilate(b_binary_gaussian, kernel, iterations=1)
                         b_closed_dummy = cv2.morphologyEx(b_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
 
-                        cv2.imwrite(f"{output_folder}/img_cv.png", b_img_cv)
-                        cv2.imwrite(f"{output_folder}/denoised.png", b_denoised)
-                        cv2.imwrite(f"{output_folder}/gray.png", b_gray_img)
-                        cv2.imwrite(f"{output_folder}/binary_g.png", b_binary_gaussian)
-                        cv2.imwrite(f"{output_folder}/dilated.png", b_dilated)
-                        cv2.imwrite(f"{output_folder}/closed_dummy.png", b_closed_dummy)
+                        
+                        
+                        
+                        
+                        
+                        
                         
                         # แยกตารางเกรดกับข้อมูลนักศึกษา
                         table_img, table_dummy_img, table_original_img = tn_tsr.find_table(b_binary_gaussian, b_denoised, b_dilated)
                         table_persective_img, table_original_persective_img, table_dummy_persective_img = tn_tsr.persective_transformation(b_binary_gaussian, b_denoised, b_dilated)
                         
-                        cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-                        cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
+                        
+                        
+                        
 
-                        cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
+                        
+                        
+                        
 
                         cell_images = tn_tsr.find_table_columns_rows(table_dummy_persective_img, table_persective_img)
 
@@ -1075,15 +937,6 @@ def technician_tesseract(request):
                         text_subject_name_images_4, subject_name_img_4 = tn_tsr.detect_text_group_in_cell(cell_subject_name_img_4, 2, calculate_line_stats_4)
                         text_credit_images_4, credit_img_4 = tn_tsr.detect_text_group_in_cell(cell_credit_img_4, 2, calculate_line_stats_4)
                         text_academic_results_images_4, academic_results_img_4 = tn_tsr.detect_text_group_in_cell(cell_academic_results_img_4, 2, calculate_line_stats_4)
-                        
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_3.jpg", subject_code_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_3.jpg", subject_name_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_3.jpg", credit_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_3.jpg", academic_results_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_4.jpg", subject_code_img_4)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_4.jpg", subject_name_img_4)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_4.jpg", credit_img_4)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_4.jpg", academic_results_img_4)
                         
                         # จับข้อความย่อยในกลุ่มข้อความของ cell ตาราง
                         text_group_subject_code_3 = tn_tsr.detect_sub_text_in_group(text_subject_code_images_3)
@@ -1159,6 +1012,7 @@ def technician_tesseract(request):
                     }
                     
                     media_path = Path(settings.MEDIA_ROOT)  # ใช้ pathlib.Path
+                    media_path.mkdir(parents=True, exist_ok=True)
                     
                     # แปลง Python dictionary เป็น JSON string
                     json_path = media_path / "transcript.json"
@@ -1180,12 +1034,12 @@ def technician_tesseract(request):
                     })   
 
             except Exception as e:
-                #error_details = traceback.format_exc()  # ดึง traceback แบบเต็ม รวมถึงบรรทัดที่เกิด error
-                #return HttpResponse(f"เกิดข้อผิดพลาด:\n{error_details}")
+                error_details = traceback.format_exc()  # ดึง traceback แบบเต็ม รวมถึงบรรทัดที่เกิด error
+                return HttpResponse(f"เกิดข้อผิดพลาด:\n{error_details}")
                 #return HttpResponseServerError(f"ขออภัย เกิดข้อผิดพลาดภายในระบบ : {e}")
-                context['failed_message'] = "ประมวลผลไม่สำเร็จ"
+                #context['failed_message'] = "ประมวลผลไม่สำเร็จ"
                 
-                return render(request, "technician_tesseract.html", context) 
+                #return render(request, "technician_tesseract.html", context) 
             
         return render(request, "technician_tesseract.html", context)
             
@@ -1234,8 +1088,8 @@ def technician(request):
             context['images'] = image_data_list
             
             try:
-                output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ")
-                output_folder.mkdir(exist_ok=True)
+                
+                
                 
                 # เมื่อมีแค่ด้านหน้า
                 if len(output_images) >= 1:
@@ -1261,27 +1115,10 @@ def technician(request):
                     f_dilated = cv2.dilate(f_binary_gaussian, kernel, iterations=1)
                     f_closed_dummy = cv2.morphologyEx(f_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
 
-                    cv2.imwrite(f"{output_folder}/img_cv.png", f_img_cv)
-                    cv2.imwrite(f"{output_folder}/denoised.png", f_denoised)
-                    cv2.imwrite(f"{output_folder}/gray.png", f_gray_img)
-                    cv2.imwrite(f"{output_folder}/binary_g.png", f_binary_gaussian)
-                    cv2.imwrite(f"{output_folder}/dilated.png", f_dilated)
-                    cv2.imwrite(f"{output_folder}/closed_dummy.png", f_closed_dummy)
                     
                     # แยกตารางเกรดกับข้อมูลนักศึกษา
                     table_img, table_dummy_img, table_original_img, student_info_img, student_info_fh_img, student_info_sh_img = tn.split_grade_table_and_students(f_binary_gaussian, f_denoised, f_dilated)
                     table_persective_img, table_original_persective_img, table_dummy_persective_img = tn.persective_transformation(f_binary_gaussian, f_denoised, f_dilated)
-                    
-                    cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-                    cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
-                    cv2.imwrite(f"{output_folder}/student_info_img.png", student_info_img)
-                    cv2.imwrite(f"{output_folder}/student_info_fh_img.png", student_info_fh_img)
-                    cv2.imwrite(f"{output_folder}/student_info_sh_img.png", student_info_sh_img)
-
-                    cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                    cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
 
                     cell_images = tn.find_table_columns_rows(table_dummy_persective_img, table_persective_img)
 
@@ -1308,15 +1145,6 @@ def technician(request):
                     text_credit_images_2, credit_img_2 = tn.detect_text_group_in_cell(cell_credit_img_2, 2, calculate_line_stats_2)
                     text_academic_results_images_2, academic_results_img_2 = tn.detect_text_group_in_cell(cell_academic_results_img_2, 2, calculate_line_stats_2)
 
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img.jpg", subject_code_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img.jpg", subject_name_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img.jpg", credit_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img.jpg", academic_results_img)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_2.jpg", subject_code_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_2.jpg", subject_name_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_2.jpg", credit_img_2)
-                    cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_2.jpg", academic_results_img_2)
-
                     # จับข้อความย่อยในกลุ่มข้อความของ cell ตาราง
                     text_group_subject_code = tn.detect_sub_text_in_group(text_subject_code_images)
                     text_group_subject_name = tn.detect_sub_text_in_group(text_subject_name_images)
@@ -1341,7 +1169,7 @@ def technician(request):
                     
                     # กำหนด path โมเดล
                     # model_path = Path("C:/Users/Impan/Documents/ocr-engine-python/models")
-                    model_path = Path("../../models")
+                    model_path = Path("models")
                     model_path_char_subject_code_tn = f"{model_path}/char_subject_code_tn_model.h5"
                     model_path_char_credit = f"{model_path}/char_credit_model.h5"
                     model_path_char_academic_results_tn = f"{model_path}/char_academic_results_tn_model.h5"
@@ -1411,8 +1239,8 @@ def technician(request):
                     
                     # มีด้านหลัง
                     if len(output_images) == 2:
-                        output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ/back")
-                        output_folder.mkdir(exist_ok=True)
+                        
+                        
                         
                         b_image = output_images[1]
                         
@@ -1436,25 +1264,11 @@ def technician(request):
                         kernel = np.ones((3, 3), np.uint8)
                         b_dilated = cv2.dilate(b_binary_gaussian, kernel, iterations=1)
                         b_closed_dummy = cv2.morphologyEx(b_binary_gaussian, cv2.MORPH_CLOSE, kernel, iterations=1)
-
-                        cv2.imwrite(f"{output_folder}/img_cv.png", b_img_cv)
-                        cv2.imwrite(f"{output_folder}/denoised.png", b_denoised)
-                        cv2.imwrite(f"{output_folder}/gray.png", b_gray_img)
-                        cv2.imwrite(f"{output_folder}/binary_g.png", b_binary_gaussian)
-                        cv2.imwrite(f"{output_folder}/dilated.png", b_dilated)
-                        cv2.imwrite(f"{output_folder}/closed_dummy.png", b_closed_dummy)
                         
                         # แยกตารางเกรดกับข้อมูลนักศึกษา
                         table_img, table_dummy_img, table_original_img = tn.find_table(b_binary_gaussian, b_denoised, b_dilated)
                         table_persective_img, table_original_persective_img, table_dummy_persective_img = tn.persective_transformation(b_binary_gaussian, b_denoised, b_dilated)
-                        
-                        cv2.imwrite(f"{output_folder}/table_img.png", table_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_img.png", table_dummy_img)
-                        cv2.imwrite(f"{output_folder}/table_original_img.png", table_original_img)
 
-                        cv2.imwrite(f"{output_folder}/table_persective_img.png", table_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_original_persective_img.png", table_original_persective_img)
-                        cv2.imwrite(f"{output_folder}/table_dummy_persective_img.png", table_dummy_persective_img)
 
                         cell_images = tn.find_table_columns_rows(table_dummy_persective_img, table_persective_img)
 
@@ -1478,15 +1292,7 @@ def technician(request):
                         text_subject_name_images_4, subject_name_img_4 = tn.detect_text_group_in_cell(cell_subject_name_img_4, 2, calculate_line_stats_4)
                         text_credit_images_4, credit_img_4 = tn.detect_text_group_in_cell(cell_credit_img_4, 2, calculate_line_stats_4)
                         text_academic_results_images_4, academic_results_img_4 = tn.detect_text_group_in_cell(cell_academic_results_img_4, 2, calculate_line_stats_4)
-                        
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_3.jpg", subject_code_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_3.jpg", subject_name_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_3.jpg", credit_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_3.jpg", academic_results_img_3)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_code_img_4.jpg", subject_code_img_4)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_subject_name_img_4.jpg", subject_name_img_4)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_credit_img_4.jpg", credit_img_4)
-                        cv2.imwrite(f"{output_folder}/cell_images/cca_academic_results_img_4.jpg", academic_results_img_4)
+                    
                         
                         # จับข้อความย่อยในกลุ่มข้อความของ cell ตาราง
                         text_group_subject_code_3 = tn.detect_sub_text_in_group(text_subject_code_images_3)
@@ -1575,6 +1381,7 @@ def technician(request):
                     }
                     
                     media_path = Path(settings.MEDIA_ROOT)  # ใช้ pathlib.Path
+                    media_path.mkdir(parents=True, exist_ok=True)
                     
                     # แปลง Python dictionary เป็น JSON string
                     json_path = media_path / "transcript.json"

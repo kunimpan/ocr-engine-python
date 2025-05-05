@@ -1,12 +1,6 @@
 import pytesseract
 import cv2
-from matplotlib import table
 import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
-
-output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ")
-output_folder.mkdir(exist_ok=True)
 
 
 def split_grade_table_and_students(binary_img, denoised, dummy):
@@ -97,7 +91,6 @@ def persective_transformation(table_binary_img, table_original_img, table_dummy_
     #return img_out, img_original_out
     return img_out, img_original_out, img_dummy_out
 
-
 def group_indices(indices, gap=1):
     groups = []
     if not indices:
@@ -113,8 +106,6 @@ def group_indices(indices, gap=1):
     return groups
 
 def find_table_columns_rows(table_dummy_persective_img, table_persective_img):
-    output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ")
-    output_folder.mkdir(exist_ok=True)
 
     # คำนวณ horizontal projection (ผลรวมของ pixel ในแต่ละแถว)
     horizontal_proj = np.sum(table_dummy_persective_img, axis=1)
@@ -160,29 +151,29 @@ def find_table_columns_rows(table_dummy_persective_img, table_persective_img):
     # วาดเส้นแถวลงใน mask (เส้นแนวนอน)
     for y in row_lines:
         cv2.line(mask_row, (0, y), (mask_row.shape[1]-1, y), 255, thickness=10)
-    cv2.imwrite(f"{output_folder}/table/row_lines_mask.png", mask_row)
+    
 
     # วาดเส้นคอลัมน์ลงใน mask (เส้นแนวตั้ง)
     for x in col_lines:
         cv2.line(mask_col, (x, 0), (x, mask_col.shape[0]-1), 255, thickness=10)
-    cv2.imwrite(f"{output_folder}/table/col_lines_mask.png", mask_col)
+    
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแถวออกจากภาพ ---
     mask_row_inv = cv2.bitwise_not(mask_row)
     img_no_lines_row = cv2.bitwise_and(table_persective_img, table_persective_img, mask=mask_row_inv)
-    cv2.imwrite(f"{output_folder}/table/table_no_lines_bitwise_row.png", img_no_lines_row)
+    
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแนวตั้งออกจากภาพ ---
     mask_col_inv = cv2.bitwise_not(mask_col)
     img_no_lines_col = cv2.bitwise_and(table_persective_img, table_persective_img, mask=mask_col_inv)
-    cv2.imwrite(f"{output_folder}/table/table_no_lines_bitwise_col.png", img_no_lines_col)
+    
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแนวตั้งและแนวนอนออกจากภาพ ---
     combined_mask = cv2.bitwise_or(mask_row, mask_col)
     combined_mask_inv = cv2.bitwise_not(combined_mask)
     img_no_lines_row_col = cv2.bitwise_and(table_persective_img, table_persective_img, mask=combined_mask_inv)
 
-    cv2.imwrite(f"{output_folder}/table/img_no_lines_row_col.png", img_no_lines_row_col)
+    
 
     cropped_col_segments = []
 
@@ -194,7 +185,7 @@ def find_table_columns_rows(table_dummy_persective_img, table_persective_img):
         
         cropped = img_no_lines_row_col[y_start:y_end, x_start:x_end]  # crop ทุกคอลัมน์ในช่วงแถวที่กำหนด
         cropped_col_segments.append(cropped)
-        cv2.imwrite(f"{output_folder}/table/cropped_segment_{i+1}.png", cropped)
+        
 
     return cropped_col_segments
 
@@ -605,8 +596,6 @@ def char_level(char_images):
 
 # เพิ่ม
 def detect_char(text_group):
-    output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ")
-    output_folder.mkdir(exist_ok=True)
 
     text_group_char = []
     for idx_g, text_g in enumerate(text_group):
@@ -864,8 +853,6 @@ def predict_text_multi_level(text_group_char, model_char_level_0, model_char_lev
     print("ประมวลผลเสร็จสิ้น")
     return text_block 
 
-
-
 def crop_border(image, left_percent=0, right_percent=0, top_percent=0, bottom_percent=0):
     
     # หาความกว้างและความสูงของภาพ
@@ -882,13 +869,11 @@ def crop_border(image, left_percent=0, right_percent=0, top_percent=0, bottom_pe
     # ตัดภาพ (Crop)
     cropped_img = image[y_start:y_end, x_start:x_end]
 
-    #cv2.imwrite(f"{output_folder}/cropped_fh.jpg", cropped_img)
+    #
     
     return cropped_img
 
 def find_text_student_info_fh(student_info_fh_img):
-    output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_TN_DJ")
-    output_folder.mkdir(exist_ok=True)
 
     student_info_fh_img = crop_border(student_info_fh_img.copy(), 0.06, 0.06, 0.06, 0.01)
 
@@ -903,8 +888,8 @@ def find_text_student_info_fh(student_info_fh_img):
 
     rgb_closing_image = cv2.cvtColor(closing, cv2.COLOR_GRAY2RGB)
 
-    cv2.imwrite(f"{output_folder}/opening.jpg", opening)
-    cv2.imwrite(f"{output_folder}/closing.jpg", closing)
+    
+    
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(closing, connectivity=8)
 
@@ -951,8 +936,8 @@ def find_text_student_info_fh(student_info_fh_img):
         cv2.rectangle(rgb_image, (x_new, y_new), (x_end, y_end), (0, 255, 0), 1)
         cv2.rectangle(rgb_closing_image, (x_new, y_new), (x_end, y_end), (0, 255, 0), 1)
         
-    cv2.imwrite(f"{output_folder}/cca_top_13_stats.jpg", rgb_image)
-    cv2.imwrite(f"{output_folder}/cca_rgb_closing_image.jpg", rgb_closing_image)
+    
+    
 
     return text_group_stud_fh[1:]
 
@@ -970,8 +955,8 @@ def find_text_student_info_sh(student_info_sh_img):
 
     rgb_closing_image = cv2.cvtColor(closing, cv2.COLOR_GRAY2RGB)
 
-    cv2.imwrite(f"{output_folder}/opening_sh.jpg", opening)
-    cv2.imwrite(f"{output_folder}/closing_sh.jpg", closing)
+    
+    
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(closing, connectivity=8)
 
@@ -1018,8 +1003,8 @@ def find_text_student_info_sh(student_info_sh_img):
         cv2.rectangle(rgb_image, (x_new, y_new), (x_end, y_end), (0, 255, 0), 1)
         cv2.rectangle(rgb_closing_image, (x_new, y_new), (x_end, y_end), (0, 255, 0), 1)
         
-    cv2.imwrite(f"{output_folder}/cca_top_14_stats.jpg", rgb_image)
-    cv2.imwrite(f"{output_folder}/cca_rgb_closing_image.jpg", rgb_closing_image)
+    
+    
 
     return text_group_stud_sh[3:]
 

@@ -1,13 +1,7 @@
 import pytesseract
 import cv2
-from matplotlib import table
 import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
 from tensorflow.keras.models import load_model
-
-output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_DJ/front")
-output_folder.mkdir(exist_ok=True)
 
 def split_grade_table_and_students(binary_img, denoised, dummy):
     
@@ -144,12 +138,10 @@ def find_table_columns(table_dummy_persective_img, table_persective_img):
     # วาดเส้นคอลัมน์ลงใน mask (เส้นแนวตั้ง)
     for x in col_lines:
         cv2.line(mask_col, (x, 0), (x, mask_col.shape[0]-1), 255, thickness=10)
-    cv2.imwrite(f"{output_folder}/cols/col_lines_mask.png", mask_col)
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแถวออกจากภาพ ---
     mask_col_inv = cv2.bitwise_not(mask_col)
     img_no_lines_col = cv2.bitwise_and(table_persective_img, table_persective_img, mask=mask_col_inv)
-    cv2.imwrite(f"{output_folder}/cols/table_no_lines_bitwise_col.png", img_no_lines_col)
 
     cropped_col_segments = []
 
@@ -158,7 +150,6 @@ def find_table_columns(table_dummy_persective_img, table_persective_img):
         x_end = col_lines[i+1]
         cropped = img_no_lines_col[:, x_start:x_end]  # crop ทุกคอลัมน์ในช่วงแถวที่กำหนด
         cropped_col_segments.append(cropped)
-        cv2.imwrite(f"{output_folder}/cols/cropped_segment_{i+1}.png", cropped)
 
     return cropped_col_segments
 
@@ -190,8 +181,6 @@ def detect_text_in_cell(cell_img, mode=0, calculate_line_stats=None):
     kernel_open = np.ones((4, 4), np.uint8)
     #kernel_open = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     remove_noise = cv2.morphologyEx(cell_img, cv2.MORPH_OPEN, kernel_open, iterations=1)
-
-    cv2.imwrite(f"{output_folder}/cell_images/remove_noise.jpg", remove_noise)
 
     kernel = np.ones((3, 13), np.uint8)
     group_text_img = cv2.dilate(remove_noise, kernel, iterations=2)
@@ -252,7 +241,7 @@ def detect_text_in_cell(cell_img, mode=0, calculate_line_stats=None):
 
             #print(f"CCA #{idx_stat}: bounding box = (x={x}, y={y}, w={w}, h={h}, area={area})")
             #cv2.rectangle(rgb_image, (x, y), (x + w, y + h), (0, 255, 0), 1)
-        #cv2.imwrite(f"{output_folder}/cell_images/cca.jpg", rgb_image)
+        
 
     text_stats = sorted_stats if mode == 1 else calculate_line_stats
     
@@ -910,9 +899,6 @@ def find_text_student_info_fh(student_info_fh_img):
     name_coordinate = sorted_stats[2]
     lastname_coordinate = sorted_stats[3]
 
-    cv2.imwrite(f"{output_folder}/opening.jpg", opening)
-    cv2.imwrite(f"{output_folder}/closing.jpg", closing)
- 
     return name_coordinate, lastname_coordinate
 
 def find_text_student_info_sh(student_info_sh_img, name_coordinate, lastname_coordinate):
@@ -933,9 +919,6 @@ def find_text_student_info_sh(student_info_sh_img, name_coordinate, lastname_coo
     name_crop = student_info_sh_not_line[y-10:y+h+5, :]
     x, y, w, h, area = lastname_coordinate
     lastname_crop = student_info_sh_not_line[y-10:y+h+7, :]
-
-    cv2.imwrite(f"{output_folder}/name_crop.jpg", name_crop)
-    cv2.imwrite(f"{output_folder}/lastname_crop.jpg", lastname_crop)
 
     return name_crop, lastname_crop
 
@@ -1343,9 +1326,6 @@ def fine_table(binary_img, original_denoised, dummy):
 
 def find_table_columns_b(table_dummy_persective_img, table_persective_img):
 
-    output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_DJ/back")
-    output_folder.mkdir(exist_ok=True)
-
     # คำนวณ vertical projection (ผลรวมของ pixel ในแต่ละคอลัมน์)
     vertical_proj = np.sum(table_dummy_persective_img, axis=0)
 
@@ -1379,12 +1359,10 @@ def find_table_columns_b(table_dummy_persective_img, table_persective_img):
     for x in col_lines:
         # กำหนดความหนาของเส้นได้ตามต้องการ (ที่นี้ใช้ thickness=2)
        cv2.line(mask, (x, 0), (x, mask.shape[0]-1), 255, thickness=13)
-    cv2.imwrite(f"{output_folder}/cols/Column Lines Mask.png", mask)
 
     # --- ใช้ Mask เพื่อลบเส้นออกจากภาพด้วย inpainting ---
     # โดยจะใช้เทคนิค inpaint (Telea method) ในการเติมเต็มบริเวณที่มีเส้น
     table_no_lines = cv2.inpaint(table_persective_img, mask, inpaintRadius=3, flags=cv2.INPAINT_TELEA)
-    cv2.imwrite(f"{output_folder}/cols/Table_No_Lines.png", table_no_lines)
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นออกจากภาพ ---
     # โดยเราจะใช้ inverted mask (mask_inv) ที่มีค่า 0 ในบริเวณเส้น
@@ -1392,7 +1370,6 @@ def find_table_columns_b(table_dummy_persective_img, table_persective_img):
 
     # bitwise_and จะเก็บเฉพาะส่วนที่ mask_inv มีค่า != 0 (ส่วนที่ไม่เป็นเส้น)
     img_no_lines = cv2.bitwise_and(table_persective_img, table_persective_img, mask=mask_inv)
-    cv2.imwrite(f"{output_folder}/cols/Table_No_Lines_Bitwise.png", img_no_lines)
 
     # Crop ภาพโดยใช้พิกัดของเส้นที่ตรวจจับได้
     cropped_segments = []
@@ -1405,18 +1382,16 @@ def find_table_columns_b(table_dummy_persective_img, table_persective_img):
         dummy_cropped = table_dummy_persective_img[:, x_start:x_end]  # crop ทุกแถวในช่วง x ที่กำหนด
         cropped_segments.append(cropped)
         cropped_dummy_segments.append(dummy_cropped)
-        cv2.imwrite(f"{output_folder}/cols/cropped_segment_{i+1}.png", cropped)
-        cv2.imwrite(f"{output_folder}/cols/cropped_dummy_segment_{i+1}.png", dummy_cropped)
+        
+        
 
     return cropped_segments, cropped_dummy_segments
 
 def find_table_subject_group(cell_img):
-    output_folder = Path("C:/Users/Impan/Documents/ocr-engine-python/data/output_images/output_V6_HS_DJ/back")
-    output_folder.mkdir(exist_ok=True)
 
     kernel = np.ones((3, 3), np.uint8)
     cell_img_dilated = cv2.dilate(cell_img.copy(), kernel, iterations=1)
-    cv2.imwrite(f"{output_folder}/cols/rows/cell_img_dilated.png", cell_img_dilated)
+    
     
     # คำนวณ horizontal projection (ผลรวมของ pixel ในแต่ละแถว)
     horizontal_proj = np.sum(cell_img_dilated, axis=1)
@@ -1463,29 +1438,29 @@ def find_table_subject_group(cell_img):
     # วาดเส้นแถวลงใน mask (เส้นแนวนอน)
     for y in row_lines:
         cv2.line(mask_row, (0, y), (mask_row.shape[1]-1, y), 255, thickness=10)
-    cv2.imwrite(f"{output_folder}/cols/rows/row_lines_mask.png", mask_row)
+    
 
     # วาดเส้นคอลัมน์ลงใน mask (เส้นแนวตั้ง)
     for x in col_lines:
         cv2.line(mask_col, (x, 0), (x, mask_col.shape[0]-1), 255, thickness=10)
-    cv2.imwrite(f"{output_folder}/cols/rows/col_lines_mask.png", mask_col)
+    
     
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแถวออกจากภาพ ---
     mask_row_inv = cv2.bitwise_not(mask_row)
     img_no_lines_row = cv2.bitwise_and(cell_img, cell_img, mask=mask_row_inv)
-    cv2.imwrite(f"{output_folder}/cols/rows/table_no_lines_bitwise_row.png", img_no_lines_row)
+    
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแนวตั้งออกจากภาพ ---
     mask_col_inv = cv2.bitwise_not(mask_col)
     img_no_lines_col = cv2.bitwise_and(cell_img, cell_img, mask=mask_col_inv)
-    cv2.imwrite(f"{output_folder}/cols/rows/table_no_lines_bitwise_col.png", img_no_lines_col)
+    
 
     # --- ใช้ cv2.bitwise_and เพื่อลบเส้นแนวตั้งและแนวนอนออกจากภาพ ---
     combined_mask = cv2.bitwise_or(mask_row, mask_col)
     combined_mask_inv = cv2.bitwise_not(combined_mask)
     img_no_lines_row_col = cv2.bitwise_and(cell_img, cell_img, mask=combined_mask_inv)
     
-    cv2.imwrite(f"{output_folder}/cols/rows/img_no_lines_row_col.png", img_no_lines_row_col)
+    
 
 
     # --- Crop ภาพโดยใช้พิกัดของเส้นที่ตรวจจับได้ ---
@@ -1497,7 +1472,7 @@ def find_table_subject_group(cell_img):
         y_end = row_lines[i+1]
         cropped = img_no_lines_row_col[y_start:y_end, :]  # crop ทุกคอลัมน์ในช่วงแถวที่กำหนด
         cropped_row_segments.append(cropped)
-        cv2.imwrite(f"{output_folder}/cols/rows/Cropped Segment {i+1}.png", cropped)
+        
 
     for idx, row_img in enumerate(cropped_row_segments[1:]):
         x_start = col_lines[0]
@@ -1505,13 +1480,13 @@ def find_table_subject_group(cell_img):
         if(idx == 0):
             department_credits_img = row_img[:, x_start:x_end]
             department_academic_results_img = row_img[:, x_end:]
-            cv2.imwrite(f"{output_folder}/cols/rows/department_credits.png", department_credits_img)
-            cv2.imwrite(f"{output_folder}/cols/rows/department_academic_results.png", department_academic_results_img)
+            
+            
         else:
             sum_department_credits_img = row_img[:, x_start:x_end]
             gpa_img = row_img[:, x_end:]
-            cv2.imwrite(f"{output_folder}/cols/rows/sum_department_credits.png", sum_department_credits_img)
-            cv2.imwrite(f"{output_folder}/cols/rows/gpa.png", gpa_img)
+            
+            
 
     return department_credits_img, department_academic_results_img, sum_department_credits_img, gpa_img
 
@@ -1583,7 +1558,6 @@ def detect_one_level_of_char_back(text_group):
 
         text_group_char.append(char_images)
     return text_group_char
-
 
 def predict_text_one_level_b(text_group_char, char_model, model_char_credit):
     models_one_level = {
